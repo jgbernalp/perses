@@ -16,10 +16,12 @@ import {
   AbsoluteTimeRange,
   DurationString,
   isRelativeTimeRange,
+  parseDurationString,
   TimeRangeValue,
   toAbsoluteTimeRange,
 } from '@perses-dev/core';
-import { useSetRefreshIntervalParams, useSetTimeRangeParams } from './query-params';
+import { milliseconds } from 'date-fns';
+import { useSetRefreshIntervalParams, useTimeRangeParams } from './query-params';
 
 export interface TimeRangeProviderProps {
   initialTimeRange: TimeRangeValue;
@@ -57,36 +59,100 @@ export function useTimeRange(): TimeRange {
 }
 
 /**
+ * Build the time range context from some initial state.
+ * The values inside the initial state can be different depending on if the query params has been enabled and/or if we
+ * gave some initial time range / refresh interval.
+ * @param ctx
+ */
+function useContextMemo(
+  ctx: Omit<TimeRange, 'refreshKey' | 'absoluteTimeRange' | 'refresh' | 'refreshIntervalInMs'>
+): TimeRange {
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshCounter((prevCounter) => prevCounter + 1);
+  }, [setRefreshCounter]);
+
+  return useMemo(() => {
+    const absoluteTimeRange = isRelativeTimeRange(ctx.timeRange) ? toAbsoluteTimeRange(ctx.timeRange) : ctx.timeRange;
+    return {
+      ...ctx,
+      refresh,
+      absoluteTimeRange,
+      refreshKey: `${absoluteTimeRange.start}:${absoluteTimeRange.end}:${ctx.refreshInterval}:${refreshCounter}`,
+      refreshIntervalInMs: getRefreshIntervalInMs(ctx.refreshInterval),
+    };
+  }, [ctx, refresh, refreshCounter]);
+}
+
+/**
+ * Utils function to transform a refresh interval in {@link DurationString} format into a number of ms.
+ * @param refreshInterval
+ */
+function getRefreshIntervalInMs(refreshInterval?: DurationString): number {
+  if (refreshInterval) {
+    const refreshIntervalDuration = parseDurationString(refreshInterval);
+    return milliseconds(refreshIntervalDuration);
+  }
+  return 0;
+}
+
+/**
  * Provider implementation that supplies the time range state at runtime.
  */
 export function TimeRangeProvider(props: TimeRangeProviderProps) {
   const { initialTimeRange, initialRefreshInterval, enabledURLParams, children } = props;
-
-  const { timeRange, setTimeRange } = useSetTimeRangeParams(initialTimeRange, enabledURLParams);
-  const { refreshInterval, setRefreshInterval, refreshIntervalInMs } = useSetRefreshIntervalParams(
-    initialRefreshInterval,
-    enabledURLParams
+  if (enabledURLParams) {
+    return (
+      <WithURLTimeRangeProvider initialTimeRange={initialTimeRange} initialRefreshInterval={initialRefreshInterval}>
+        {children}
+      </WithURLTimeRangeProvider>
+    );
+  }
+  return (
+    <WithoutURLTimeRangeProvider initialTimeRange={initialTimeRange} initialRefreshInterval={initialRefreshInterval}>
+      {children}
+    </WithoutURLTimeRangeProvider>
   );
+}
 
-  const [refreshKey, setRefreshKey] = useState(0);
+/**
+ * Internal version of the {@link TimeRangeProvider} used if user set `enabledURLParams` to true.
+ * @param props
+ * @constructor
+ */
+function WithURLTimeRangeProvider(props: Omit<TimeRangeProviderProps, 'enabledURLParams'>) {
+  const { initialTimeRange, initialRefreshInterval, children } = props;
 
-  const refresh = useCallback(() => {
-    setRefreshKey(refreshKey + 1);
-  }, [refreshKey]);
+  const { timeRange, setTimeRange } = useTimeRangeParams(initialTimeRange);
+  const { refreshInterval, setRefreshInterval } = useSetRefreshIntervalParams(initialRefreshInterval);
 
-  const ctx = useMemo(() => {
-    const absoluteTimeRange = isRelativeTimeRange(timeRange) ? toAbsoluteTimeRange(timeRange) : timeRange;
-    return {
-      timeRange,
-      setTimeRange,
-      absoluteTimeRange,
-      refresh,
-      refreshKey: `${absoluteTimeRange.start}:${absoluteTimeRange.end}:${refreshInterval}:${refreshKey}`,
-      refreshInterval,
-      refreshIntervalInMs,
-      setRefreshInterval,
-    };
-  }, [timeRange, setTimeRange, refresh, refreshKey, refreshInterval, refreshIntervalInMs, setRefreshInterval]);
+  const ctx = useContextMemo({
+    timeRange,
+    setTimeRange,
+    refreshInterval,
+    setRefreshInterval,
+  });
+
+  return <TimeRangeContext.Provider value={ctx}>{children}</TimeRangeContext.Provider>;
+}
+
+/**
+ * Internal version of the {@link TimeRangeProvider} used if user set `enabledURLParams` to false.
+ * @param props
+ * @constructor
+ */
+function WithoutURLTimeRangeProvider(props: Omit<TimeRangeProviderProps, 'enabledURLParams'>) {
+  const { initialTimeRange, initialRefreshInterval, children } = props;
+  const [timeRange, setTimeRange] = useState<TimeRangeValue>(initialTimeRange);
+  const [refreshInterval, setRefreshInterval] = useState<DurationString | undefined>(initialRefreshInterval);
+
+  const ctx = useContextMemo({
+    timeRange,
+    setTimeRange,
+    refreshInterval,
+    setRefreshInterval,
+  });
 
   return <TimeRangeContext.Provider value={ctx}>{children}</TimeRangeContext.Provider>;
 }

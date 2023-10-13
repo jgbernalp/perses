@@ -416,9 +416,39 @@ export interface TemplateVariableProviderProps {
    */
   externalVariableDefinitions?: ExternalVariableDefinition[];
   builtinVariables?: BuiltinVariableDefinition[];
+  enabledURLParams?: boolean;
 }
 
 export function TemplateVariableProvider({
+  children,
+  initialVariableDefinitions = [],
+  externalVariableDefinitions = [],
+  builtinVariables = [],
+  enabledURLParams = true,
+}: TemplateVariableProviderProps) {
+  if (enabledURLParams) {
+    return (
+      <WithURLTemplateVariableProvider
+        initialVariableDefinitions={initialVariableDefinitions}
+        externalVariableDefinitions={externalVariableDefinitions}
+        builtinVariables={builtinVariables}
+      >
+        {children}
+      </WithURLTemplateVariableProvider>
+    );
+  }
+  return (
+    <WithoutURLTemplateVariableProvider
+      initialVariableDefinitions={initialVariableDefinitions}
+      externalVariableDefinitions={externalVariableDefinitions}
+      builtinVariables={builtinVariables}
+    >
+      {children}
+    </WithoutURLTemplateVariableProvider>
+  );
+}
+
+function WithURLTemplateVariableProvider({
   children,
   initialVariableDefinitions = [],
   externalVariableDefinitions = [],
@@ -429,6 +459,21 @@ export function TemplateVariableProvider({
   const [store] = useState(
     createTemplateVariableSrvStore({ initialVariableDefinitions, externalVariableDefinitions, queryParams })
   );
+
+  return (
+    <TemplateVariableStoreContext.Provider value={store}>
+      <PluginProvider builtinVariables={builtinVariables}>{children}</PluginProvider>
+    </TemplateVariableStoreContext.Provider>
+  );
+}
+
+function WithoutURLTemplateVariableProvider({
+  children,
+  initialVariableDefinitions = [],
+  externalVariableDefinitions = [],
+  builtinVariables = [],
+}: TemplateVariableProviderProps) {
+  const [store] = useState(createTemplateVariableSrvStore({ initialVariableDefinitions, externalVariableDefinitions }));
 
   return (
     <TemplateVariableStoreContext.Provider value={store}>
