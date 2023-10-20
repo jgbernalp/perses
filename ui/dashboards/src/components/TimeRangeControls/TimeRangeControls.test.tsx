@@ -15,7 +15,7 @@ import { generatePath } from 'react-router';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { screen, act } from '@testing-library/react';
-import { TimeRangeProvider, TimeRangeFromQuery } from '@perses-dev/plugin-system';
+import { TimeRangeProvider, TimeRangeFromQueryProvider } from '@perses-dev/plugin-system';
 import { renderWithContext } from '../../test';
 import testDashboard from '../../test/testDashboard';
 import { DashboardProvider, DashboardStoreProps, TemplateVariableProvider } from '../../context';
@@ -40,14 +40,14 @@ describe('TimeRangeControls', () => {
     renderWithContext(
       <DashboardProvider initialState={initialState}>
         {testURLParams ? (
-          <TimeRangeFromQuery
+          <TimeRangeFromQueryProvider
             initialRefreshInterval={testDefaultRefreshInterval}
             initialTimeRange={testDefaultTimeRange}
           >
             <TemplateVariableProvider>
               <TimeRangeControls />
             </TemplateVariableProvider>
-          </TimeRangeFromQuery>
+          </TimeRangeFromQueryProvider>
         ) : (
           <TimeRangeProvider refreshInterval={testDefaultRefreshInterval} timeRange={testDefaultTimeRange}>
             <TemplateVariableProvider>

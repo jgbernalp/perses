@@ -15,7 +15,7 @@ import { Box, BoxProps } from '@mui/material';
 import { BuiltinVariableDefinition, DEFAULT_DASHBOARD_DURATION, DEFAULT_REFRESH_INTERVAL } from '@perses-dev/core';
 import { ErrorBoundary, ErrorAlert, combineSx } from '@perses-dev/components';
 import {
-  TimeRangeFromQuery,
+  TimeRangeFromQueryProvider,
   useInitialRefreshInterval,
   useInitialTimeRange,
   usePluginBuiltinVariableDefinitions,
@@ -101,7 +101,7 @@ export function ViewDashboard(props: ViewDashboardProps) {
   return (
     <DatasourceStoreProvider dashboardResource={dashboardResource} datasourceApi={datasourceApi}>
       <DashboardProvider initialState={{ dashboardResource, isEditMode: !!isEditing }}>
-        <TimeRangeFromQuery initialTimeRange={initialTimeRange} initialRefreshInterval={initialRefreshInterval}>
+        <TimeRangeFromQueryProvider initialTimeRange={initialTimeRange} initialRefreshInterval={initialRefreshInterval}>
           <TemplateVariableProvider
             initialVariableDefinitions={spec.variables}
             externalVariableDefinitions={externalVariableDefinitions}
@@ -134,7 +134,7 @@ export function ViewDashboard(props: ViewDashboardProps) {
               </ErrorBoundary>
             </Box>
           </TemplateVariableProvider>
-        </TimeRangeFromQuery>
+        </TimeRangeFromQueryProvider>
       </DashboardProvider>
     </DatasourceStoreProvider>
   );
