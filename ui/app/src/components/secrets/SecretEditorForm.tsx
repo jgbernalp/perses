@@ -43,7 +43,7 @@ import { FormEditorProps } from '../form-drawers';
 
 const basicAuthIndex = 'basicAuth';
 const authorizationIndex = 'authorization';
-const oAuthIndex = 'oAuth';
+const oauthIndex = 'oauth';
 
 type SecretEditorFormProps = FormEditorProps<Secret>;
 
@@ -66,8 +66,8 @@ export function SecretEditorForm({
     const result = { ...initialValue };
     if (result.spec.basicAuth?.password) result.spec.basicAuth.password = '';
     if (result.spec.authorization?.credentials) result.spec.authorization.credentials = '';
-    if (result.spec.oAuth?.clientID) result.spec.oAuth.clientID = '';
-    if (result.spec.oAuth?.clientSecret) result.spec.oAuth.clientSecret = '';
+    if (result.spec.oauth?.clientID) result.spec.oauth.clientID = '';
+    if (result.spec.oauth?.clientSecret) result.spec.oauth.clientSecret = '';
     if (result.spec.tlsConfig?.ca) result.spec.tlsConfig.ca = '';
     if (result.spec.tlsConfig?.cert) result.spec.tlsConfig.cert = '';
     if (result.spec.tlsConfig?.key) result.spec.tlsConfig.key = '';
@@ -115,7 +115,7 @@ export function SecretEditorForm({
       ? basicAuthIndex
       : initialSecretClean.spec.authorization
         ? authorizationIndex
-        : oAuthIndex
+        : oauthIndex
   );
 
   const handleTabChange = (event: SyntheticEvent, newValue: string): void => {
@@ -123,8 +123,8 @@ export function SecretEditorForm({
       form.setValue('spec.basicAuth', { username: '', password: '', passwordFile: '' });
     } else if (newValue === authorizationIndex) {
       form.setValue('spec.authorization', { type: '', credentials: '', credentialsFile: '' });
-    } else if (newValue === oAuthIndex) {
-      form.setValue('spec.oAuth', {
+    } else if (newValue === oauthIndex) {
+      form.setValue('spec.oauth', {
         clientID: '',
         clientSecret: '',
         clientSecretFile: '',
@@ -144,8 +144,8 @@ export function SecretEditorForm({
     if (newValue !== authorizationIndex) {
       form.setValue('spec.authorization', undefined);
     }
-    if (newValue !== oAuthIndex) {
-      form.setValue('spec.oAuth', undefined);
+    if (newValue !== oauthIndex) {
+      form.setValue('spec.oauth', undefined);
     }
     form.trigger();
   };
@@ -220,7 +220,7 @@ export function SecretEditorForm({
                   control={<Radio />}
                   label="Custom Authorization"
                 />
-                <FormControlLabel disabled={isReadonly} value={oAuthIndex} control={<Radio />} label="OAuth" />
+                <FormControlLabel disabled={isReadonly} value={oauthIndex} control={<Radio />} label="OAuth" />
               </RadioGroup>
             </FormControl>
           </Stack>
@@ -360,11 +360,11 @@ export function SecretEditorForm({
               </Stack>
             </Stack>
           </TabPanel>
-          <TabPanel value={tabValue} index={oAuthIndex}>
+          <TabPanel value={tabValue} index={oauthIndex}>
             <Stack gap={2}>
               <Controller
                 control={form.control}
-                name="spec.oAuth.clientID"
+                name="spec.oauth.clientID"
                 render={({ field, fieldState }) => (
                   <TextField
                     {...field}
@@ -387,7 +387,7 @@ export function SecretEditorForm({
               <Stack direction="row">
                 <Controller
                   control={form.control}
-                  name="spec.oAuth.clientSecret"
+                  name="spec.oauth.clientSecret"
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
@@ -409,7 +409,7 @@ export function SecretEditorForm({
                 <Divider orientation="vertical">OR</Divider>
                 <Controller
                   control={form.control}
-                  name="spec.oAuth.clientSecretFile"
+                  name="spec.oauth.clientSecretFile"
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
@@ -431,7 +431,7 @@ export function SecretEditorForm({
               <Stack direction="row">
                 <Controller
                   control={form.control}
-                  name="spec.oAuth.tokenURL"
+                  name="spec.oauth.tokenURL"
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
@@ -455,7 +455,7 @@ export function SecretEditorForm({
                 <Typography variant="subtitle1">Scopes</Typography>
                 <Controller
                   control={form.control}
-                  name="spec.oAuth.scopes"
+                  name="spec.oauth.scopes"
                   render={({ field }) => {
                     const scopes = field.value || [];
 
@@ -514,7 +514,7 @@ export function SecretEditorForm({
                 <Typography variant="subtitle1">Endpoint Params</Typography>
                 <Controller
                   control={form.control}
-                  name="spec.oAuth.endpointParams"
+                  name="spec.oauth.endpointParams"
                   render={({ field }) => {
                     const mapToEndpointParams = (
                       map: Map<string, string[]> | EndpointParams | undefined
@@ -657,7 +657,7 @@ export function SecretEditorForm({
               <Stack direction="row">
                 <Controller
                   control={form.control}
-                  name="spec.oAuth.authStyle"
+                  name="spec.oauth.authStyle"
                   render={({ field, fieldState }) => (
                     <Tooltip
                       title={

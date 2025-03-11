@@ -32,7 +32,7 @@ export interface Row extends CommonRow {
   project: string;
   basicAuth: boolean;
   authorization: boolean;
-  oAuth: boolean;
+  oauth: boolean;
   tlsConfig: boolean;
 }
 

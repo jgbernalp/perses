@@ -58,7 +58,7 @@ export const secretSpecSchema = z
         }
       })
       .optional(),
-    oAuth: z
+    oauth: z
       .object({
         clientID: z.string(),
         clientSecret: z.string().optional(),
@@ -142,7 +142,7 @@ export const secretSpecSchema = z
       .optional(),
   })
   .superRefine((val, ctx) => {
-    if (val.basicAuth && val.authorization && val.oAuth) {
+    if (val.basicAuth && val.authorization && val.oauth) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Only one of the fields must be defined',
@@ -156,7 +156,7 @@ export const secretSpecSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Only one of the fields must be defined',
-        path: ['oAuth'],
+        path: ['oauth'],
       });
     }
   });

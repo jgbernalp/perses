@@ -49,7 +49,7 @@ export interface TLSConfig {
 export interface SecretSpec {
   basicAuth?: BasicAuth;
   authorization?: Authorization;
-  oAuth?: OAuth;
+  oauth?: OAuth;
   tlsConfig?: TLSConfig;
 }
 
