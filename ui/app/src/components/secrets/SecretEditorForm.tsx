@@ -48,9 +48,7 @@ const oauthIndex = 'oauth';
 
 type SecretEditorFormProps = FormEditorProps<Secret>;
 
-type EndpointParams = {
-  [key: string]: string[];
-};
+type EndpointParams = Record<string, string[]> | undefined;
 
 export function SecretEditorForm({
   initialValue,
@@ -518,16 +516,7 @@ export function SecretEditorForm({
                   control={form.control}
                   name="spec.oauth.endpointParams"
                   render={({ field }) => {
-                    const mapToEndpointParams = (
-                      map: Map<string, string[]> | EndpointParams | undefined
-                    ): EndpointParams => {
-                      if (map instanceof Map) {
-                        return Object.fromEntries(map);
-                      }
-                      return map || {};
-                    };
-
-                    const params: EndpointParams = mapToEndpointParams(field.value);
+                    const params: EndpointParams = field.value || {};
 
                     const addParam = (): void => {
                       const newParams: EndpointParams = {
