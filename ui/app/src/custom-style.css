@@ -1,0 +1,14 @@
+@layer custom {
+  :root {
+    font-family: Helvetica, sans-serif;
+
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
+    a:visited {
+      color: #1a73e8;
+    }
+  }
+}

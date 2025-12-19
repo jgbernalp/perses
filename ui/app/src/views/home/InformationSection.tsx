@@ -11,15 +11,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card, CardContent, Stack } from '@mui/material';
-import InformationIcon from 'mdi-material-ui/Information';
 import { ReactElement } from 'react';
+import { useIcon } from '@perses-dev/components';
 import { useInformation } from '../../context/Config';
+import './InformationSection.css';
 
 /*
  * Information section is displayed if there is information provided by the config
  */
 export function InformationSection(): ReactElement {
+  const InfoIcon = useIcon('Info');
   const data = useInformation();
 
   if (!data) {
@@ -27,14 +28,14 @@ export function InformationSection(): ReactElement {
   }
 
   return (
-    <Stack>
-      <Stack direction="row" alignItems="center" gap={1}>
-        <InformationIcon />
+    <div className="ps-InformationSection">
+      <div className="ps-InformationSection-header">
+        <InfoIcon />
         <h2>Information</h2>
-      </Stack>
-      <Card>
-        <CardContent dangerouslySetInnerHTML={{ __html: data }}></CardContent>
-      </Card>
-    </Stack>
+      </div>
+      <div className="ps-InformationSection-card">
+        <div className="ps-InformationSection-content" dangerouslySetInnerHTML={{ __html: data }}></div>
+      </div>
+    </div>
   );
 }

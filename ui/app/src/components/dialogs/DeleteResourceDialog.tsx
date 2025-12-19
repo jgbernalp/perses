@@ -13,8 +13,7 @@
 
 import { getResourceExtendedDisplayName, Resource } from '@perses-dev/core';
 import { Dispatch, DispatchWithoutAction, ReactElement } from 'react';
-import { Dialog } from '@perses-dev/components';
-import { Button } from '@mui/material';
+import { Dialog, Button } from '@perses-dev/components';
 
 interface DeleteResourceDialogProps<T extends Resource> {
   resource: T;
@@ -43,10 +42,10 @@ export function DeleteResourceDialog<T extends Resource>(props: DeleteResourceDi
         ? This action cannot be undone.
       </Dialog.Content>
       <Dialog.Actions>
-        <Button variant="contained" type="submit" onClick={() => onSubmit(resource)}>
+        <Button variant="solid" type="submit" onClick={() => onSubmit(resource)}>
           Delete
         </Button>
-        <Button variant="outlined" color="secondary" onClick={onClose}>
+        <Button variant="outlined" onClick={onClose}>
           Cancel
         </Button>
       </Dialog.Actions>

@@ -18,14 +18,10 @@ import {
   EphemeralDashboardInfo,
   getResourceExtendedDisplayName,
 } from '@perses-dev/core';
-import { Stack } from '@mui/material';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import PencilIcon from 'mdi-material-ui/Pencil';
+import './DashboardList.css';
 import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
-import { useSnackbar } from '@perses-dev/components';
+import { GridColDef, GridRowParams, useSnackbar, useIcon } from '@perses-dev/components';
 import { CreateDashboardDialog, DeleteResourceDialog, RenameDashboardDialog } from '../dialogs';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
 import {
@@ -53,6 +49,9 @@ export interface DashboardListProperties extends ListProperties {
  * @param props.isEphemeralDashboardEnabled Display switch button if ephemeral dashboards are enabled in copy dialog.
  */
 export function DashboardList(props: DashboardListProperties): ReactElement {
+  const DeleteIcon = useIcon('Delete');
+  const EditIcon = useIcon('Edit');
+  const CopyIcon = useIcon('Copy');
   const navigate = useNavigate();
   const { dashboardList, hideToolbar, isLoading, initialState, isEphemeralDashboardEnabled } = props;
   const { successSnackbar, exceptionSnackbar } = useSnackbar();
@@ -164,7 +163,7 @@ export function DashboardList(props: DashboardListProperties): ReactElement {
     [getDashboard]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       PROJECT_COL_DEF,
       DISPLAY_NAME_COL_DEF,
@@ -177,42 +176,46 @@ export function DashboardList(props: DashboardListProperties): ReactElement {
         type: 'actions',
         flex: 0.5,
         minWidth: 100,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Rename"
-            action="update"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={handleRenameButtonClick(params.row.project, params.row.name)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-duplicate'}
-            icon={<ContentCopyIcon />}
-            label="Duplicate"
-            action="create"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={handleDuplicateButtonClick(params.row.project, params.row.name)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={handleDeleteButtonClick(params.row.project, params.row.name)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Rename"
+              action="update"
+              scope="Dashboard"
+              project={row.project}
+              onClick={handleRenameButtonClick(row.project, row.name)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-duplicate'}
+              icon={<CopyIcon />}
+              label="Duplicate"
+              action="create"
+              scope="Dashboard"
+              project={row.project}
+              onClick={handleDuplicateButtonClick(row.project, row.name)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope="Dashboard"
+              project={row.project}
+              onClick={handleDeleteButtonClick(row.project, row.name)}
+            />,
+          ];
+        },
       },
     ],
     [handleRenameButtonClick, handleDuplicateButtonClick, handleDeleteButtonClick]
   );
 
   return (
-    <Stack width="100%">
+    <div className="ps-DashboardList">
       <DashboardDataGrid
         rows={rows}
         columns={columns}
@@ -245,6 +248,6 @@ export function DashboardList(props: DashboardListProperties): ReactElement {
           />
         </>
       )}
-    </Stack>
+    </div>
   );
 }

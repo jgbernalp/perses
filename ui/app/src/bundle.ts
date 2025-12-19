@@ -11,6 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Load design tokens and component styles
+import '@perses-dev/tokens/css';
+import '@perses-dev/components/css';
+import './custom-style.css';
+
 import { renderApp } from './render-app';
 
 // Main entrypoint for the webpack bundle, just renders the app into the #root element in the index.html

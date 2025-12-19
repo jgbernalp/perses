@@ -11,14 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Container, Divider, Stack, Typography } from '@mui/material';
-import AutoFix from 'mdi-material-ui/AutoFix';
-import Upload from 'mdi-material-ui/Upload';
-import { ChangeEvent, ReactElement, useState } from 'react';
-import { JSONEditor } from '@perses-dev/components';
+import { Button, JSONEditor, Separator, useIcon } from '@perses-dev/components';
 import { DashboardResource } from '@perses-dev/core';
+import { ChangeEvent, ReactElement, useState } from 'react';
 import { useIsMobileSize } from '../../utils/browser-size';
 import GrafanaFlow from './GrafanaFlow';
+import './ImportView.css';
 import PersesFlow from './PersesFlow';
 
 type DashboardType = 'grafana' | 'perses';
@@ -36,6 +34,8 @@ interface PersesDashboard {
 }
 
 function ImportView(): ReactElement {
+  const SparklesIcon = useIcon('Sparkles');
+  const UploadIcon = useIcon('Upload');
   const [dashboard, setDashboard] = useState<Dashboard>();
   const isMobileSize = useIsMobileSize();
 
@@ -74,20 +74,25 @@ function ImportView(): ReactElement {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ padding: isMobileSize ? 1 : 2, overflowX: 'hidden' }}>
-      <Stack direction="row" alignItems="center" gap={1} mb={2}>
-        <AutoFix fontSize="large" />
-        <Typography variant="h1">Import</Typography>
-      </Stack>
-      <Stack direction="column" spacing={1}>
-        <Typography variant="h2" sx={{ paddingTop: 2 }}>
-          1. Provide a dashboard
-        </Typography>
-        <Button fullWidth startIcon={<Upload />} variant="outlined" component="label">
-          Upload JSON file
-          <input type="file" onChange={fileUploadOnChange} hidden style={{ width: '100%' }} />
+    <div className={`ps-ImportView ${isMobileSize ? 'ps-ImportView--mobile' : ''}`}>
+      <div className="ps-ImportView-header">
+        <SparklesIcon fontSize="large" />
+        <h1>Import</h1>
+      </div>
+      <div className="ps-ImportView-content">
+        <h2 className="ps-ImportView-sectionTitle">1. Provide a dashboard</h2>
+        <Button fullWidth variant="outlined">
+          <label className="ps-ImportView-uploadLabel">
+            <UploadIcon style={{ marginRight: '8px' }} />
+            Upload JSON file
+            <input type="file" onChange={fileUploadOnChange} hidden style={{ width: '100%' }} />
+          </label>
         </Button>
-        <Divider>OR</Divider>
+        <div className="ps-ImportView-divider">
+          <Separator />
+          <span>OR</span>
+          <Separator />
+        </div>
         <JSONEditor
           value={dashboard?.data}
           onChange={(value: string) => completeDashboard(value)}
@@ -98,8 +103,8 @@ function ImportView(): ReactElement {
         />
         {dashboard !== undefined && dashboard.kind === 'grafana' && <GrafanaFlow dashboard={dashboard?.data} />}
         {dashboard !== undefined && dashboard.kind === 'perses' && <PersesFlow dashboard={dashboard?.data} />}
-      </Stack>
-    </Container>
+      </div>
+    </div>
   );
 }
 

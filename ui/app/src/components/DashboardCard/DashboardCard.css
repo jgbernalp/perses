@@ -1,0 +1,57 @@
+/* Copyright 2024 The Perses Authors
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+.ps-DashboardCard {
+  width: 100%;
+  justify-content: flex-start;
+  background-color: var(--ps-primary-700, #1976d2);
+  text-decoration: none;
+}
+
+.ps-DashboardCard-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ps-spacing-md);
+  width: 100%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ps-DashboardCard-info {
+  display: flex;
+  flex-direction: column;
+  max-width: 90%;
+}
+
+.ps-DashboardCard-title {
+  text-align: start;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ps-font-size-lg);
+  font-weight: var(--ps-font-weight-semibold);
+}
+
+.ps-DashboardCard-project {
+  text-align: start;
+  display: flex;
+  align-items: center;
+  gap: var(--ps-spacing-sm);
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--ps-font-size-sm);
+  opacity: 0.8;
+}

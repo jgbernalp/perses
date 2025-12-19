@@ -11,12 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Typography } from '@mui/material';
-import Archive from 'mdi-material-ui/Archive';
-import ViewDashboardIcon from 'mdi-material-ui/ViewDashboard';
+import { useIcon } from '@perses-dev/components';
 import { getResourceDisplayName, ProjectResource } from '@perses-dev/core';
 import { ReactElement } from 'react';
 import { HomeLinkCrumb, Breadcrumbs, LinkCrumb, StackCrumb, TitleCrumb } from './breadcrumbs';
+import './ProjectBreadcrumbs.css';
 
 interface ProjectBreadcrumbsProps {
   project: ProjectResource;
@@ -24,56 +23,32 @@ interface ProjectBreadcrumbsProps {
 }
 
 function ProjectBreadcrumbs(props: ProjectBreadcrumbsProps): ReactElement {
+  const ArchiveIcon = useIcon('Archive');
+  const DashboardIcon = useIcon('Dashboard');
   const { project, dashboardName } = props;
 
   if (dashboardName) {
     return (
-      <Breadcrumbs
-        id="breadcrumbs"
-        sx={{
-          overflowX: 'scroll',
-          scrollbarWidth: 'none' /* Firefox */,
-          '& .MuiBreadcrumbs-ol': {
-            flexWrap: 'nowrap',
-            whiteSpace: 'nowrap',
-          },
-          '&::-webkit-scrollbar': {
-            display: 'none' /* Safari and Chrome */,
-          },
-        }}
-      >
+      <Breadcrumbs id="breadcrumbs" className="ps-ProjectBreadcrumbs-scrollable">
         <HomeLinkCrumb />
         <LinkCrumb to={`/projects/${project.metadata.name}`}>
           <StackCrumb>
-            <Archive fontSize="small" /> {getResourceDisplayName(project)}
+            <ArchiveIcon fontSize="small" /> {getResourceDisplayName(project)}
           </StackCrumb>
         </LinkCrumb>
         <StackCrumb>
-          <ViewDashboardIcon fontSize="small" />
-          <Typography variant="h3">{dashboardName}</Typography>
+          <DashboardIcon fontSize="small" />
+          <span className="ps-ProjectBreadcrumbs-dashboardName">{dashboardName}</span>
         </StackCrumb>
       </Breadcrumbs>
     );
   }
 
   return (
-    <Breadcrumbs
-      id="breadcrumbs"
-      sx={{
-        overflowX: 'scroll',
-        scrollbarWidth: 'none' /* Firefox */,
-        '& .MuiBreadcrumbs-ol': {
-          flexWrap: 'nowrap',
-          whiteSpace: 'nowrap',
-        },
-        '&::-webkit-scrollbar': {
-          display: 'none' /* Safari and Chrome */,
-        },
-      }}
-    >
+    <Breadcrumbs id="breadcrumbs" className="ps-ProjectBreadcrumbs-scrollable">
       <HomeLinkCrumb />
       <StackCrumb>
-        <Archive fontSize="large" />
+        <ArchiveIcon fontSize="large" />
         <TitleCrumb>{getResourceDisplayName(project)}</TitleCrumb>
       </StackCrumb>
     </Breadcrumbs>

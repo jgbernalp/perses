@@ -11,27 +11,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card, Stack } from '@mui/material';
-import HistoryIcon from 'mdi-material-ui/History';
 import { ReactElement } from 'react';
-import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
+import { ErrorAlert, ErrorBoundary, useIcon } from '@perses-dev/components';
 import { RecentDashboardList } from '../../components/DashboardList/RecentDashboardList';
 import { useRecentDashboardList } from '../../model/dashboard-client';
+import './RecentDashboards.css';
 
 export function RecentDashboards(): ReactElement {
+  const HistoryIcon = useIcon('History');
   const { data, isLoading } = useRecentDashboardList();
 
   return (
-    <Stack>
-      <Stack direction="row" alignItems="center" gap={1}>
+    <div className="ps-RecentDashboards">
+      <div className="ps-RecentDashboards-header">
         <HistoryIcon />
         <h2>Recently Viewed Dashboards</h2>
-      </Stack>
-      <Card id="recent-dashboard-list">
+      </div>
+      <div className="ps-RecentDashboards-card" id="recent-dashboard-list">
         <ErrorBoundary FallbackComponent={ErrorAlert}>
           <RecentDashboardList dashboardList={data} isLoading={isLoading} />
         </ErrorBoundary>
-      </Card>
-    </Stack>
+      </div>
+    </div>
   );
 }

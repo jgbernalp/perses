@@ -11,13 +11,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, LinearProgress, Link, Stack, TextField, Typography } from '@mui/material';
+import { Button, TextField, Progress, useSnackbar } from '@perses-dev/components';
 import { ReactElement, useState } from 'react';
-import { useSnackbar } from '@perses-dev/components';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { SignInRoute } from '../../model/route';
 import { useCreateUserMutation } from '../../model/user-client';
 import { SignWrapper } from './SignWrapper';
+import './SignUpView.css';
 
 function SignUpView(): ReactElement {
   const createUserMutation = useCreateUserMutation();
@@ -51,7 +51,7 @@ function SignUpView(): ReactElement {
     return createUserMutation.isPending || login === '' || password === '';
   };
 
-  const handleKeypress = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+  const handleKeypress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (isSignUpDisabled()) {
       return;
     }
@@ -64,28 +64,28 @@ function SignUpView(): ReactElement {
 
   return (
     <SignWrapper>
-      <Stack direction="row" gap={1}>
-        <TextField label="First name" onChange={(e) => setFirstname(e.target.value)} onKeyPress={handleKeypress} />
-        <TextField label="Last name" onChange={(e) => setLastname(e.target.value)} onKeyPress={handleKeypress} />
-      </Stack>
-      <TextField label="Username" required onChange={(e) => setLogin(e.target.value)} onKeyPress={handleKeypress} />
+      <div className="ps-SignUpView-nameRow">
+        <TextField label="First name" onChange={(value) => setFirstname(value)} onKeyPress={handleKeypress} />
+        <TextField label="Last name" onChange={(value) => setLastname(value)} onKeyPress={handleKeypress} />
+      </div>
+      <TextField label="Username" required onChange={(value) => setLogin(value)} onKeyPress={handleKeypress} />
       <TextField
         type="password"
         label="Password"
         required
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(value) => setPassword(value)}
         onKeyPress={handleKeypress}
       />
-      <Button variant="contained" disabled={isSignUpDisabled()} onClick={() => handleRegister()}>
+      <Button variant="solid" disabled={isSignUpDisabled()} onClick={() => handleRegister()}>
         Register
       </Button>
-      {createUserMutation.isPending && <LinearProgress />}
-      <Typography sx={{ textAlign: 'center' }}>
+      {createUserMutation.isPending && <Progress />}
+      <p className="ps-SignUpView-signInLink">
         Already have an account?&nbsp;
-        <Link underline="hover" component={RouterLink} to={SignInRoute}>
+        <RouterLink to={SignInRoute} className="ps-SignUpView-link">
           Sign in
-        </Link>
-      </Typography>
+        </RouterLink>
+      </p>
     </SignWrapper>
   );
 }

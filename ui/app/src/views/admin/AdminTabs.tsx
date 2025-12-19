@@ -11,50 +11,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, BoxProps, Stack } from '@mui/material';
-import { ReactElement, SyntheticEvent, useCallback, useMemo, useState } from 'react';
-import CodeJsonIcon from 'mdi-material-ui/CodeJson';
-import DatabaseIcon from 'mdi-material-ui/Database';
-import KeyIcon from 'mdi-material-ui/Key';
+import { Tabs, useIcon, useSnackbar } from '@perses-dev/components';
 import {
   getResourceDisplayName,
-  GlobalDatasourceResource,
   getResourceExtendedDisplayName,
-  GlobalVariableResource,
-  GlobalRoleResource,
+  GlobalDatasourceResource,
   GlobalRoleBindingResource,
+  GlobalRoleResource,
   GlobalSecretResource,
+  GlobalVariableResource,
 } from '@perses-dev/core';
+import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from '@perses-dev/components';
-import ShieldAccountIcon from 'mdi-material-ui/ShieldAccount';
-import ShieldIcon from 'mdi-material-ui/Shield';
-import AccountIcon from 'mdi-material-ui/Account';
 import { CRUDButton, CRUDButtonProps } from '../../components/CRUDButton/CRUDButton';
-import { VariableDrawer } from '../../components/variable/VariableDrawer';
-import { useCreateGlobalVariableMutation } from '../../model/global-variable-client';
 import { DatasourceDrawer } from '../../components/datasource/DatasourceDrawer';
+import { RoleBindingDrawer } from '../../components/rolebindings/RoleBindingDrawer';
+import { RoleDrawer } from '../../components/roles/RoleDrawer';
+import { SecretDrawer } from '../../components/secrets/SecretDrawer';
+import { MenuTab, MenuTabs } from '../../components/tabs';
+import { VariableDrawer } from '../../components/variable/VariableDrawer';
+import { GlobalProject, useHasPermission } from '../../context/Authorization';
 import {
   useIsAuthEnabled,
   useIsGlobalDatasourceEnabled,
   useIsGlobalVariableEnabled,
   useIsReadonly,
 } from '../../context/Config';
-import { MenuTab, MenuTabs } from '../../components/tabs';
-import { useCreateGlobalRoleBindingMutation } from '../../model/global-rolebinding-client';
-import { useCreateGlobalRoleMutation, useGlobalRoleList } from '../../model/global-role-client';
-import { RoleDrawer } from '../../components/roles/RoleDrawer';
-import { RoleBindingDrawer } from '../../components/rolebindings/RoleBindingDrawer';
-import { GlobalProject, useHasPermission } from '../../context/Authorization';
-import { useIsMobileSize } from '../../utils/browser-size';
-import { useCreateGlobalSecretMutation } from '../../model/global-secret-client';
-import { SecretDrawer } from '../../components/secrets/SecretDrawer';
 import { useCreateGlobalDatasourceMutation } from '../../model/global-datasource-client';
-import { GlobalVariables } from './tabs/GlobalVariables';
+import { useCreateGlobalRoleMutation, useGlobalRoleList } from '../../model/global-role-client';
+import { useCreateGlobalRoleBindingMutation } from '../../model/global-rolebinding-client';
+import { useCreateGlobalSecretMutation } from '../../model/global-secret-client';
+import { useCreateGlobalVariableMutation } from '../../model/global-variable-client';
+import { useIsMobileSize } from '../../utils/browser-size';
+import './AdminTabs.css';
 import { GlobalDatasources } from './tabs/GlobalDatasources';
-import { GlobalSecrets } from './tabs/GlobalSecrets';
-import { GlobalRoles } from './tabs/GlobalRoles';
 import { GlobalRoleBindings } from './tabs/GlobalRoleBindings';
+import { GlobalRoles } from './tabs/GlobalRoles';
+import { GlobalSecrets } from './tabs/GlobalSecrets';
+import { GlobalVariables } from './tabs/GlobalVariables';
 import { Users } from './tabs/Users';
 
 const datasourcesTabIndex = 'datasources';
@@ -178,7 +172,7 @@ function TabButton({ index, ...props }: TabButtonProps): ReactElement {
             action="create"
             scope="GlobalDatasource"
             project={GlobalProject}
-            variant="contained"
+            variant="solid"
             onClick={() => setDatasourceDrawerOpened(true)}
             {...props}
           >
@@ -214,7 +208,7 @@ function TabButton({ index, ...props }: TabButtonProps): ReactElement {
             action="create"
             scope="GlobalRole"
             project={GlobalProject}
-            variant="contained"
+            variant="solid"
             onClick={() => setRoleDrawerOpened(true)}
             {...props}
           >
@@ -245,7 +239,7 @@ function TabButton({ index, ...props }: TabButtonProps): ReactElement {
             action="create"
             scope="GlobalRoleBinding"
             project={GlobalProject}
-            variant="contained"
+            variant="solid"
             onClick={() => setRoleBindingDrawerOpened(true)}
             {...props}
           >
@@ -278,7 +272,7 @@ function TabButton({ index, ...props }: TabButtonProps): ReactElement {
             action="create"
             scope="GlobalSecret"
             project={GlobalProject}
-            variant="contained"
+            variant="solid"
             onClick={() => setSecretDrawerOpened(true)}
             {...props}
           >
@@ -308,7 +302,7 @@ function TabButton({ index, ...props }: TabButtonProps): ReactElement {
             action="create"
             scope="GlobalVariable"
             project={GlobalProject}
-            variant="contained"
+            variant="solid"
             onClick={() => setVariableDrawerOpened(true)}
             {...props}
           >
@@ -342,22 +336,23 @@ function TabButton({ index, ...props }: TabButtonProps): ReactElement {
   }
 }
 
-interface TabPanelProps extends BoxProps {
+interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   index: string;
   value: string;
 }
 
-function TabPanel({ children, value, index, ...props }: TabPanelProps): ReactElement {
+function TabPanel({ children, value, index, className, ...props }: TabPanelProps): ReactElement {
   return (
-    <Box
+    <div
       role="tabpanel"
       hidden={value !== index}
       id={`admin-tabpanel-${index}`}
       aria-labelledby={`admin-tab-${index}`}
+      className={`ps-AdminTabs-tabPanel ${className || ''}`}
       {...props}
     >
       {value === index && children}
-    </Box>
+    </div>
   );
 }
 
@@ -374,6 +369,12 @@ interface AdminTabsProps {
 
 export function AdminTabs(props: AdminTabsProps): ReactElement {
   const { initialTab } = props;
+  const AccountIcon = useIcon('AccountCircle');
+  const CodeJsonIcon = useIcon('Code');
+  const DatabaseIcon = useIcon('Database');
+  const KeyIcon = useIcon('Key');
+  const ShieldIcon = useIcon('Shield');
+  const ShieldAccountIcon = useIcon('ShieldAccount');
   const isAuthEnabled = useIsAuthEnabled();
   const isGlobalDatasourceEnabled = useIsGlobalDatasourceEnabled();
   const isGlobalVariableEnabled = useIsGlobalVariableEnabled();
@@ -390,115 +391,109 @@ export function AdminTabs(props: AdminTabsProps): ReactElement {
   const hasGlobalVariableReadPermission = useHasPermission('read', GlobalProject, 'GlobalVariable');
   const hasUserReadPermission = useHasPermission('read', GlobalProject, 'User');
 
-  const handleChange = (event: SyntheticEvent, newTabIndex: string): void => {
+  const handleChange = (newTabIndex: string): void => {
     setValue(newTabIndex);
     navigate(`/admin/${newTabIndex}`);
   };
-  const marginTop = isMobileSize ? 1 : 2;
+  const tabPanelClassName = isMobileSize ? 'ps-AdminTabs-tabPanel--mobile' : '';
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ borderBottom: 1, borderColor: 'divider' }}
-      >
-        <MenuTabs
-          value={value}
-          onChange={handleChange}
-          variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          aria-label="Admin tabs"
-        >
-          {isGlobalVariableEnabled && (
+    <div className="ps-AdminTabs">
+      <Tabs value={value} onValueChange={handleChange}>
+        <div className="ps-AdminTabs-header">
+          <MenuTabs
+            // TODO: enable scrollable tabs when we have more tabs
+            // variant="scrollable"
+            // scrollButtons="auto"
+            // allowScrollButtonsMobile
+            aria-label="Admin tabs"
+          >
+            {isGlobalVariableEnabled && (
+              <MenuTab
+                label="Global Variables"
+                icon={<CodeJsonIcon />}
+                {...a11yProps(variablesTabIndex)}
+                value={variablesTabIndex}
+                disabled={!hasGlobalVariableReadPermission}
+              />
+            )}
+            {isGlobalDatasourceEnabled && (
+              <MenuTab
+                label="Global Datasources"
+                icon={<DatabaseIcon />}
+                {...a11yProps(datasourcesTabIndex)}
+                value={datasourcesTabIndex}
+                disabled={!hasGlobalDatasourceReadPermission}
+              />
+            )}
             <MenuTab
-              label="Global Variables"
-              icon={<CodeJsonIcon />}
-              iconPosition="start"
-              {...a11yProps(variablesTabIndex)}
-              value={variablesTabIndex}
-              disabled={!hasGlobalVariableReadPermission}
+              label="Global Secrets"
+              icon={<KeyIcon />}
+              {...a11yProps(secretsTabIndex)}
+              value={secretsTabIndex}
+              disabled={!hasGlobalSecretReadPermission}
             />
-          )}
-          {isGlobalDatasourceEnabled && (
-            <MenuTab
-              label="Global Datasources"
-              icon={<DatabaseIcon />}
-              iconPosition="start"
-              {...a11yProps(datasourcesTabIndex)}
-              value={datasourcesTabIndex}
-              disabled={!hasGlobalDatasourceReadPermission}
-            />
-          )}
-          <MenuTab
-            label="Global Secrets"
-            icon={<KeyIcon />}
-            iconPosition="start"
-            {...a11yProps(secretsTabIndex)}
-            value={secretsTabIndex}
-            disabled={!hasGlobalSecretReadPermission}
-          />
-          {isAuthEnabled && (
-            <MenuTab
-              label="Global Roles"
-              icon={<ShieldIcon />}
-              iconPosition="start"
-              {...a11yProps(roleBindingsTabIndex)}
-              value={rolesTabIndex}
-              disabled={!hasGlobalRoleReadPermission}
-            />
-          )}
-          {isAuthEnabled && (
-            <MenuTab
-              label="Global Role Bindings"
-              icon={<ShieldAccountIcon />}
-              iconPosition="start"
-              {...a11yProps(roleBindingsTabIndex)}
-              value={roleBindingsTabIndex}
-              disabled={!hasGlobalRoleBindingReadPermission}
-            />
-          )}
-          {isAuthEnabled && (
-            <MenuTab
-              label="Users"
-              icon={<AccountIcon />}
-              iconPosition="start"
-              {...a11yProps(usersTabIndex)}
-              value={usersTabIndex}
-              disabled={!hasUserReadPermission}
-            />
-          )}
-        </MenuTabs>
-        {!isMobileSize && <TabButton index={value} />}
-      </Stack>
-      {isMobileSize && <TabButton index={value} fullWidth sx={{ marginTop: 0.5 }} />}
-      {isGlobalVariableEnabled && (
-        <TabPanel value={value} index={variablesTabIndex} sx={{ marginTop: marginTop }}>
-          <GlobalVariables id="global-variable-list" />
+            {isAuthEnabled && (
+              <MenuTab
+                label="Global Roles"
+                icon={<ShieldIcon />}
+                {...a11yProps(roleBindingsTabIndex)}
+                value={rolesTabIndex}
+                disabled={!hasGlobalRoleReadPermission}
+              />
+            )}
+            {isAuthEnabled && (
+              <MenuTab
+                label="Global Role Bindings"
+                icon={<ShieldAccountIcon />}
+                {...a11yProps(roleBindingsTabIndex)}
+                value={roleBindingsTabIndex}
+                disabled={!hasGlobalRoleBindingReadPermission}
+              />
+            )}
+            {isAuthEnabled && (
+              <MenuTab
+                label="Users"
+                icon={<AccountIcon />}
+                {...a11yProps(usersTabIndex)}
+                value={usersTabIndex}
+                disabled={!hasUserReadPermission}
+              />
+            )}
+          </MenuTabs>
+          {!isMobileSize && <TabButton index={value} />}
+        </div>
+        {isMobileSize && <TabButton index={value} fullWidth style={{ marginTop: '4px' }} />}
+        {isGlobalVariableEnabled && (
+          <TabPanel value={value} index={variablesTabIndex} className={tabPanelClassName}>
+            <GlobalVariables id="global-variable-list" />
+          </TabPanel>
+        )}
+        {isGlobalDatasourceEnabled && (
+          <TabPanel value={value} index={datasourcesTabIndex} className={tabPanelClassName}>
+            <GlobalDatasources id="global-datasource-list" />
+          </TabPanel>
+        )}
+        <TabPanel value={value} index={secretsTabIndex} className={tabPanelClassName}>
+          <GlobalSecrets id="global-secret-list" />
         </TabPanel>
-      )}
-      {isGlobalDatasourceEnabled && (
-        <TabPanel value={value} index={datasourcesTabIndex} sx={{ marginTop: marginTop }}>
-          <GlobalDatasources id="global-datasource-list" />
-        </TabPanel>
-      )}
-      <TabPanel value={value} index={secretsTabIndex} sx={{ marginTop: marginTop }}>
-        <GlobalSecrets id="global-secret-list" />
-      </TabPanel>
-      {isAuthEnabled && (
-        <>
-          <TabPanel value={value} index={rolesTabIndex} sx={{ marginTop: marginTop }}>
-            <GlobalRoles id="global-role-list" />
-          </TabPanel>
-          <TabPanel value={value} index={roleBindingsTabIndex} sx={{ marginTop: marginTop }}>
-            <GlobalRoleBindings id="global-rolebinding-list" />
-          </TabPanel>
-          <TabPanel value={value} index={usersTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-            <Users id="user-list" />
-          </TabPanel>
-        </>
-      )}
-    </Box>
+        {isAuthEnabled && (
+          <>
+            <TabPanel value={value} index={rolesTabIndex} className={tabPanelClassName}>
+              <GlobalRoles id="global-role-list" />
+            </TabPanel>
+            <TabPanel value={value} index={roleBindingsTabIndex} className={tabPanelClassName}>
+              <GlobalRoleBindings id="global-rolebinding-list" />
+            </TabPanel>
+            <TabPanel
+              value={value}
+              index={usersTabIndex}
+              className={isMobileSize ? 'ps-AdminTabs-tabPanel--mobile' : ''}
+            >
+              <Users id="user-list" />
+            </TabPanel>
+          </>
+        )}
+      </Tabs>
+    </div>
   );
 }

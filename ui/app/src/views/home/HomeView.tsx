@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid, MenuItem, Stack } from '@mui/material';
+import './HomeView.css';
 import { ReactElement, useState } from 'react';
-import HomeIcon from 'mdi-material-ui/Home';
+import { useIcon } from '@perses-dev/components';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { DashboardSelector, ProjectResource } from '@perses-dev/core';
 import { CreateProjectDialog, CreateDashboardDialog } from '../../components/dialogs';
@@ -30,6 +30,7 @@ import { ProjectsAndDashboards } from './ProjectsAndDashboards';
 import { ImportantDashboards } from './ImportantDashboards';
 
 function HomeView(): ReactElement {
+  const HomeIcon = useIcon('Home');
   // Navigate to the project page if the project has been successfully added
   const navigate = useNavigate();
   const isMobileSize = useIsMobileSize();
@@ -58,29 +59,31 @@ function HomeView(): ReactElement {
   };
 
   return (
-    <Stack sx={{ width: '100%', overflowX: 'hidden' }} m={isMobileSize ? 1 : 2} gap={1}>
-      <Box sx={{ width: '100%' }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+    <div className={`ps-HomeView ${isMobileSize ? 'ps-HomeView--mobile' : ''}`}>
+      <div className="ps-HomeView-header">
+        <div className="ps-HomeView-headerRow">
           <StackCrumb>
             <HomeIcon fontSize="large" />
             <TitleCrumb>Home</TitleCrumb>
           </StackCrumb>
-          <Stack direction="row" gap={isMobileSize ? 0.5 : 2}>
-            <CRUDButton action="create" scope="Project" variant="contained" onClick={handleAddProjectDialogOpen}>
+          <div className={`ps-HomeView-actions ${isMobileSize ? 'ps-HomeView-actions--mobile' : ''}`}>
+            <CRUDButton action="create" scope="Project" variant="solid" onClick={handleAddProjectDialogOpen}>
               Add Project
             </CRUDButton>
 
             <ButtonMenu>
-              <CRUDButton
-                variant="contained"
-                onClick={handleAddDashboardDialogOpen}
-                disabled={userProjects.length === 0}
-              >
+              <CRUDButton variant="solid" onClick={handleAddDashboardDialogOpen} disabled={userProjects.length === 0}>
                 Add Dashboard
               </CRUDButton>
-              <MenuItem component={RouterLink} to={ImportRoute} disabled={userProjects.length === 0}>
-                <CRUDButton style={{ backgroundColor: 'transparent' }}>Import Dashboard</CRUDButton>
-              </MenuItem>
+              <RouterLink
+                to={ImportRoute}
+                className={`ps-HomeView-menuLink ${userProjects.length === 0 ? 'ps-HomeView-menuLink--disabled' : ''}`}
+                onClick={(e) => userProjects.length === 0 && e.preventDefault()}
+              >
+                <CRUDButton style={{ backgroundColor: 'transparent' }} disabled={userProjects.length === 0}>
+                  Import Dashboard
+                </CRUDButton>
+              </RouterLink>
             </ButtonMenu>
             <CreateProjectDialog
               open={isAddProjectDialogOpen}
@@ -94,24 +97,24 @@ function HomeView(): ReactElement {
               onSuccess={handleAddDashboardDialogSubmit}
               isEphemeralDashboardEnabled={isEphemeralDashboardEnabled}
             />
-          </Stack>
-        </Stack>
-      </Box>
-      <Grid container spacing={8}>
-        <Grid item xs={12} lg={8}>
-          <Stack gap={2}>
+          </div>
+        </div>
+      </div>
+      <div className="ps-HomeView-grid">
+        <div className="ps-HomeView-main">
+          <div className="ps-HomeView-mainContent">
             <ImportantDashboards />
             <ProjectsAndDashboards />
-          </Stack>
-        </Grid>
-        <Grid item xs={12} lg={4}>
-          <Stack gap={2}>
+          </div>
+        </div>
+        <div className="ps-HomeView-sidebar">
+          <div className="ps-HomeView-sidebarContent">
             <InformationSection />
             <RecentDashboards />
-          </Stack>
-        </Grid>
-      </Grid>
-    </Stack>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

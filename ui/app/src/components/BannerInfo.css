@@ -1,0 +1,56 @@
+/* Copyright 2024 The Perses Authors
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+.ps-BannerInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ps-spacing-sm) var(--ps-spacing-md);
+  border-radius: var(--ps-radius-sm);
+}
+
+.ps-BannerInfo[data-severity='info'] {
+  background-color: var(--ps-info-background);
+  color: var(--ps-info-text);
+  border: 1px solid var(--ps-info-border);
+}
+
+.ps-BannerInfo[data-severity='warning'] {
+  background-color: var(--ps-warning-background);
+  color: var(--ps-warning-text);
+  border: 1px solid var(--ps-warning-border);
+}
+
+.ps-BannerInfo[data-severity='error'] {
+  background-color: var(--ps-error-background);
+  color: var(--ps-error-text);
+  border: 1px solid var(--ps-error-border);
+}
+
+.ps-BannerInfo[data-severity='success'] {
+  background-color: var(--ps-success-background);
+  color: var(--ps-success-text);
+  border: 1px solid var(--ps-success-border);
+}
+
+.ps-BannerInfo-message {
+  flex: 1;
+}
+
+.ps-BannerInfo-message h1 {
+  margin: var(--ps-spacing-xs);
+}
+
+.ps-BannerInfo-close {
+  flex-shrink: 0;
+}

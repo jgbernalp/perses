@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './GlobalSecrets.css';
 import { useSnackbar } from '@perses-dev/components';
 import { GlobalSecretResource, Secret } from '@perses-dev/core';
 import { SecretList } from '../../../components/secrets/SecretList';
@@ -92,7 +92,7 @@ export function GlobalSecrets(props: GlobalSecretsProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-GlobalSecrets" id={id}>
       <SecretList
         data={data ?? []}
         isLoading={isLoading}
@@ -115,6 +115,6 @@ export function GlobalSecrets(props: GlobalSecretsProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

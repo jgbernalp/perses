@@ -15,11 +15,17 @@ import { RoleBinding, roleBindingsEditorSchema } from '@perses-dev/core';
 import { getSubmitText, getTitleAction } from '@perses-dev/plugin-system';
 import React, { ReactElement, useMemo, useState } from 'react';
 import { Controller, FormProvider, SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
-import { Autocomplete, Box, Divider, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { DiscardChangesConfirmationDialog, FormActions } from '@perses-dev/components';
+import {
+  DiscardChangesConfirmationDialog,
+  FormActions,
+  IconButton,
+  Separator,
+  FormTextField,
+  FormAutocomplete,
+  useIcon,
+} from '@perses-dev/components';
+import './RoleBindingEditorForm.css';
 import { zodResolver } from '@hookform/resolvers/zod';
-import PlusIcon from 'mdi-material-ui/Plus';
-import MinusIcon from 'mdi-material-ui/Minus';
 import { useUserList } from '../../model/user-client';
 import { FormEditorProps } from '../form-drawers';
 
@@ -38,6 +44,8 @@ export function RoleBindingEditorForm({
   onClose,
   onDelete,
 }: RoleBindingEditorFormProps): ReactElement {
+  const AddIcon = useIcon('Plus');
+  const MinusIcon = useIcon('Minus');
   const [isDiscardDialogOpened, setDiscardDialogOpened] = useState<boolean>(false);
 
   const titleAction = getTitleAction(action, isDraft);
@@ -77,15 +85,8 @@ export function RoleBindingEditorForm({
 
   return (
     <FormProvider {...form}>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: (theme) => theme.spacing(1, 2),
-          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Typography variant="h2">{titleAction} Role Binding</Typography>
+      <div className="ps-RoleBindingEditorForm-header">
+        <h2>{titleAction} Role Binding</h2>
         <FormActions
           action={action}
           submitText={submitText}
@@ -96,14 +97,14 @@ export function RoleBindingEditorForm({
           onDelete={onDelete}
           onCancel={handleCancel}
         />
-      </Box>
-      <Stack padding={2} gap={2} sx={{ overflowY: 'scroll' }}>
-        <Stack gap={2} direction="row">
+      </div>
+      <div className="ps-RoleBindingEditorForm-content">
+        <div className="ps-RoleBindingEditorForm-row">
           <Controller
             control={form.control}
             name="metadata.name"
             render={({ field, fieldState }) => (
-              <TextField
+              <FormTextField
                 {...field}
                 required
                 fullWidth
@@ -115,9 +116,6 @@ export function RoleBindingEditorForm({
                 }}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                onChange={(event) => {
-                  field.onChange(event);
-                }}
               />
             )}
           />
@@ -125,93 +123,75 @@ export function RoleBindingEditorForm({
             control={form.control}
             name="spec.role"
             render={({ field, fieldState }) => (
-              <Autocomplete
+              <FormAutocomplete
                 {...field}
                 disablePortal
                 freeSolo
                 options={roleSuggestions}
                 fullWidth
-                readOnly={action !== 'create'} // Role of a Role Binding can't be updated
-                onChange={(_, data) => {
+                readOnly={action !== 'create'}
+                label="Role"
+                required
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                onChange={(data) => {
                   field.onChange(data);
                 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Role"
-                    required
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                    onChange={(event) => {
-                      field.onChange(event.target.value);
-                    }}
-                  />
-                )}
               />
             )}
           />
-        </Stack>
-        <Divider />
-        <Stack gap={1}>
-          <Typography variant="h1" mb={2}>
-            Subjects
-          </Typography>
+        </div>
+        <Separator className="ps-RoleBindingEditorForm-divider" />
+        <div className="ps-RoleBindingEditorForm-section">
+          <h1 className="ps-RoleBindingEditorForm-sectionTitle">Subjects</h1>
           {fields && fields.length > 0 ? (
             fields.map((field, index) => (
-              <Stack key={field.id} direction="row" gap={1}>
+              <div key={field.id} className="ps-RoleBindingEditorForm-row">
                 <Controller
                   control={form.control}
                   name={`spec.subjects.${index}.name`}
                   render={({ field, fieldState }) => (
-                    <Autocomplete
+                    <FormAutocomplete
                       {...field}
                       disablePortal
                       freeSolo
                       options={usernames}
                       fullWidth
                       readOnly={action === 'read'}
-                      onChange={(_, data) => {
+                      label="Username"
+                      required
+                      error={!!fieldState.error}
+                      helperText={fieldState.error?.message}
+                      onChange={(data) => {
                         field.onChange(data);
                       }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Username"
-                          required
-                          error={!!fieldState.error}
-                          helperText={fieldState.error?.message}
-                          onChange={(event) => {
-                            field.onChange(event.target.value);
-                          }}
-                        />
-                      )}
                     />
                   )}
                 />
                 <IconButton
+                  aria-label="Remove subject"
                   disabled={isReadonly || action === 'read'}
                   style={{ width: 'fit-content', height: 'fit-content' }}
                   onClick={() => remove(index)}
                 >
                   <MinusIcon />
                 </IconButton>
-              </Stack>
+              </div>
             ))
           ) : (
-            <Typography variant="subtitle1" mb={2} fontStyle="italic">
-              No subject defined
-            </Typography>
+            <span className="ps-RoleBindingEditorForm-emptyText">No subject defined</span>
           )}
           <IconButton
+            aria-label="Add subject"
             disabled={isReadonly || action === 'read'}
             style={{ width: 'fit-content', height: 'fit-content' }}
             // Add a new subject
             onClick={() => append({ kind: 'User', name: '' })}
           >
-            <PlusIcon />
+            <AddIcon />
           </IconButton>
-        </Stack>
-      </Stack>
+        </div>
+      </div>
       <DiscardChangesConfirmationDialog
         description="Are you sure you want to discard these changes? Changes cannot be recovered."
         isOpen={isDiscardDialogOpened}

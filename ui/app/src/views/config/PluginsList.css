@@ -1,0 +1,78 @@
+/* Copyright 2024 The Perses Authors
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+.ps-PluginsList {
+  padding: var(--ps-spacing-md);
+}
+
+.ps-PluginsList-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--ps-spacing-lg);
+}
+
+@media (max-width: 1200px) {
+  .ps-PluginsList-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ps-PluginsList-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ps-PluginsList-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ps-PluginsList-gridItem {
+  min-width: 0;
+}
+
+.ps-PluginsList-card {
+  height: 100%;
+  background-color: var(--ps-background-paper);
+  border-radius: var(--ps-border-radius-md);
+  box-shadow: var(--ps-shadow-md);
+}
+
+.ps-PluginsList-cardContent {
+  padding: var(--ps-spacing-md);
+}
+
+.ps-PluginsList-title {
+  margin: 0;
+  margin-bottom: var(--ps-spacing-xs);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ps-PluginsList-noPlugins {
+  font-size: 0.875rem;
+}
+
+.ps-PluginsList-singlePlugin {
+  margin-top: var(--ps-spacing-md);
+}
+
+.ps-PluginsList-kindText {
+  color: var(--ps-text-secondary);
+}
+
+.ps-PluginsList-divider {
+  margin: 12px 0;
+}

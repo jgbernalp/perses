@@ -11,21 +11,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, ButtonProps, Tooltip } from '@mui/material';
+import { Button, Tooltip, ButtonProps } from '@perses-dev/components';
 import { Action, Scope } from '@perses-dev/core';
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode, MouseEventHandler } from 'react';
 import { useIsReadonly } from '../../context/Config';
 import { GlobalProject, useHasPermission } from '../../context/Authorization';
 import { useIsMobileSize } from '../../utils/browser-size';
+import './CRUDButton.css';
 
 export interface CRUDButtonProps extends Omit<ButtonProps, 'action'> {
   action?: Action;
   scope?: Scope;
   project?: string;
+  children?: ReactNode;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
 /*
- * CRUDButton is an alias of MUI Button, that will add a Tooltip with a reason if the button need to be disabled.
+ * CRUDButton is an alias of Button, that will add a Tooltip with a reason if the button need to be disabled.
  * If action, scope and project are provided, it will check if the user has the permission to execute the action.
  */
 export function CRUDButton({
@@ -34,7 +37,6 @@ export function CRUDButton({
   scope,
   project,
   variant,
-  color,
   disabled,
   onClick,
   ...props
@@ -45,13 +47,12 @@ export function CRUDButton({
 
   if (isReadonly) {
     return (
-      <Tooltip title="Resource managed via code only" placement="top">
+      <Tooltip content="Resource managed via code only">
         <span>
           <Button
             variant={variant}
-            color={color}
-            size="small"
-            sx={{ textTransform: 'uppercase', paddingX: isMobileSize ? 1 : undefined }}
+            size="sm"
+            className={isMobileSize ? 'ps-CRUDButton-mobile' : undefined}
             onClick={onClick}
             disabled
             {...props}
@@ -70,13 +71,12 @@ export function CRUDButton({
         : `Missing '${action}' permission in '${project}' project for '${scope}' kind`;
 
     return (
-      <Tooltip title={errorMessage} placement="top">
+      <Tooltip content={errorMessage}>
         <span>
           <Button
             variant={variant}
-            color={color}
-            size="small"
-            sx={{ textTransform: 'uppercase', paddingX: isMobileSize ? 1 : undefined }}
+            size="sm"
+            className={isMobileSize ? 'ps-CRUDButton-mobile' : undefined}
             onClick={onClick}
             disabled
             {...props}
@@ -91,9 +91,8 @@ export function CRUDButton({
   return (
     <Button
       variant={variant}
-      color={color}
-      size="small"
-      sx={{ textTransform: 'uppercase', paddingX: isMobileSize ? 1 : undefined }}
+      size="sm"
+      className={isMobileSize ? 'ps-CRUDButton-mobile' : undefined}
       onClick={onClick}
       disabled={disabled}
       {...props}

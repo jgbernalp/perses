@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { useSnackbar } from '@perses-dev/components';
+import './ProjectDatasources.css';
 import { ReactElement, useCallback } from 'react';
 import { getResourceDisplayName, DatasourceResource } from '@perses-dev/core';
 import {
@@ -97,7 +97,7 @@ export function ProjectDatasources(props: ProjectDatasourcesProps): ReactElement
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-ProjectDatasources" id={id}>
       <DatasourceList
         data={data || []}
         hideToolbar={hideToolbar}
@@ -116,6 +116,6 @@ export function ProjectDatasources(props: ProjectDatasourcesProps): ReactElement
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

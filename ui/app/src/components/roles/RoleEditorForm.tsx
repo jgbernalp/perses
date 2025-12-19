@@ -15,11 +15,16 @@ import { Action, ACTIONS, GLOBAL_SCOPES, PROJECT_SCOPES, Role, rolesEditorSchema
 import { getSubmitText, getTitleAction } from '@perses-dev/plugin-system';
 import React, { Fragment, ReactElement, useMemo, useState } from 'react';
 import { Control, Controller, FormProvider, SubmitHandler, useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { Box, Divider, IconButton, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { DiscardChangesConfirmationDialog, FormActions } from '@perses-dev/components';
+import {
+  DiscardChangesConfirmationDialog,
+  FormActions,
+  IconButton,
+  Separator,
+  FormTextField,
+  useIcon,
+} from '@perses-dev/components';
+import './RoleEditorForm.css';
 import { zodResolver } from '@hookform/resolvers/zod';
-import PlusIcon from 'mdi-material-ui/Plus';
-import MinusIcon from 'mdi-material-ui/Minus';
 import { FormEditorProps } from '../form-drawers';
 
 type RoleEditorFormProps = FormEditorProps<Role>;
@@ -34,6 +39,8 @@ export function RoleEditorForm({
   onClose,
   onDelete,
 }: RoleEditorFormProps): ReactElement {
+  const AddIcon = useIcon('Plus');
+  const MinusIcon = useIcon('Minus');
   const [isDiscardDialogOpened, setDiscardDialogOpened] = useState<boolean>(false);
 
   const titleAction = getTitleAction(action, isDraft);
@@ -68,15 +75,8 @@ export function RoleEditorForm({
 
   return (
     <FormProvider {...form}>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: (theme) => theme.spacing(1, 2),
-          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Typography variant="h2">{titleAction} Role</Typography>
+      <div className="ps-RoleEditorForm-header">
+        <h2>{titleAction} Role</h2>
         <FormActions
           action={action}
           submitText={submitText}
@@ -87,14 +87,14 @@ export function RoleEditorForm({
           onDelete={onDelete}
           onCancel={handleCancel}
         />
-      </Box>
-      <Stack padding={2} gap={2} sx={{ overflowY: 'scroll' }}>
-        <Stack gap={2} direction="row">
+      </div>
+      <div className="ps-RoleEditorForm-content">
+        <div className="ps-RoleEditorForm-row">
           <Controller
             control={form.control}
             name="metadata.name"
             render={({ field, fieldState }) => (
-              <TextField
+              <FormTextField
                 {...field}
                 required
                 fullWidth
@@ -106,49 +106,44 @@ export function RoleEditorForm({
                 }}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                onChange={(event) => {
-                  field.onChange(event);
-                }}
               />
             )}
           />
-        </Stack>
-        <Divider />
-        <Stack gap={1}>
-          <Typography variant="h1" mb={2}>
-            Permissions
-          </Typography>
+        </div>
+        <Separator className="ps-RoleEditorForm-divider" />
+        <div className="ps-RoleEditorForm-section">
+          <h1 className="ps-RoleEditorForm-sectionTitle">Permissions</h1>
           {fields && fields.length > 0 ? (
             fields.map((field, index) => (
               <Fragment key={field.id}>
-                <Stack key={field.id} direction="row" gap={1} alignItems="end">
+                <div key={field.id} className="ps-RoleEditorForm-permissionRow">
                   <PermissionControl control={form.control} index={index} action={action} />
                   <IconButton
+                    aria-label="Remove permission"
                     disabled={isReadonly || action === 'read'}
                     style={{ width: 'fit-content', height: 'fit-content' }}
                     onClick={() => remove(index)}
                   >
                     <MinusIcon />
                   </IconButton>
-                </Stack>
-                <Divider />
+                </div>
+                <Separator className="ps-RoleEditorForm-divider" />
               </Fragment>
             ))
           ) : (
-            <Typography variant="subtitle1" mb={2} fontStyle="italic">
-              No permission defined
-            </Typography>
+            <span className="ps-RoleEditorForm-emptyText">No permission defined</span>
           )}
           <IconButton
+            aria-label="Add permission"
             disabled={isReadonly || action === 'read'}
             style={{ width: 'fit-content', height: 'fit-content' }}
             // Add a new subject
             onClick={() => append({ actions: ['read'], scopes: ['*'] })}
           >
-            <PlusIcon />
+            <AddIcon />
           </IconButton>
-        </Stack>
-      </Stack>
+        </div>
+      </div>
       <DiscardChangesConfirmationDialog
         description="Are you sure you want to discard these changes? Changes cannot be recovered."
         isOpen={isDiscardDialogOpened}
@@ -183,17 +178,15 @@ function PermissionControl({ control, index, action }: PermissionControl): React
   }, [kind]);
 
   return (
-    <Stack direction="row" width="100%" gap={2}>
-      <Stack gap={1} width="100%">
-        <Typography variant="h3" textTransform="capitalize">
-          Actions
-        </Typography>
+    <div className="ps-RoleEditorForm-permissionControl">
+      <div className="ps-RoleEditorForm-permissionColumn">
+        <h3 className="ps-RoleEditorForm-columnTitle">Actions</h3>
 
         <Controller
           control={control}
           name={`spec.permissions.${index}.actions`}
           render={({ field, fieldState }) => (
-            <TextField
+            <FormTextField
               select
               {...field}
               required
@@ -208,29 +201,24 @@ function PermissionControl({ control, index, action }: PermissionControl): React
               }}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              onChange={(event) => {
-                field.onChange(event);
-              }}
             >
               {ACTIONS.map((actionOption: string) => (
-                <MenuItem key={`actionOption-${actionOption}`} value={actionOption}>
+                <option key={`actionOption-${actionOption}`} value={actionOption}>
                   {actionOption}
-                </MenuItem>
+                </option>
               ))}
-            </TextField>
+            </FormTextField>
           )}
         />
-      </Stack>
-      <Stack gap={1} width="100%">
-        <Typography variant="h3" textTransform="capitalize">
-          Scopes
-        </Typography>
+      </div>
+      <div className="ps-RoleEditorForm-permissionColumn">
+        <h3 className="ps-RoleEditorForm-columnTitle">Scopes</h3>
 
         <Controller
           control={control}
           name={`spec.permissions.${index}.scopes`}
           render={({ field, fieldState }) => (
-            <TextField
+            <FormTextField
               select
               {...field}
               required
@@ -245,19 +233,16 @@ function PermissionControl({ control, index, action }: PermissionControl): React
               }}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              onChange={(event) => {
-                field.onChange(event);
-              }}
             >
               {availableScopes.map((scopeOption: string) => (
-                <MenuItem key={`scopeAction-${scopeOption}`} value={scopeOption}>
+                <option key={`scopeAction-${scopeOption}`} value={scopeOption}>
                   {scopeOption}
-                </MenuItem>
+                </option>
               ))}
-            </TextField>
+            </FormTextField>
           )}
         />
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 }

@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { SnackbarProvider } from '@perses-dev/components';
+import { ComponentsProvider, defaultComponentsConfig, SnackbarProvider } from '@perses-dev/components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lazy, ReactElement, Suspense } from 'react';
 import { CookiesProvider } from 'react-cookie';
@@ -76,19 +76,24 @@ function AppProviders(): ReactElement {
   return (
     <CookiesProvider>
       <QueryClientProvider client={queryClient}>
-        <DarkModeContextProvider>
-          <ConfigContextProvider>
-            <QueryParamProvider adapter={ReactRouter6Adapter}>
-              <NavHistoryProvider>
-                <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                  <AuthorizationProvider>
-                    <App />
-                  </AuthorizationProvider>
-                </SnackbarProvider>
-              </NavHistoryProvider>
-            </QueryParamProvider>
-          </ConfigContextProvider>
-        </DarkModeContextProvider>
+        <ComponentsProvider defaults={defaultComponentsConfig}>
+          <DarkModeContextProvider>
+            <ConfigContextProvider>
+              <QueryParamProvider adapter={ReactRouter6Adapter}>
+                <NavHistoryProvider>
+                  <SnackbarProvider
+                  // TODO: add back
+                  // anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  >
+                    <AuthorizationProvider>
+                      <App />
+                    </AuthorizationProvider>
+                  </SnackbarProvider>
+                </NavHistoryProvider>
+              </QueryParamProvider>
+            </ConfigContextProvider>
+          </DarkModeContextProvider>
+        </ComponentsProvider>
       </QueryClientProvider>
     </CookiesProvider>
   );

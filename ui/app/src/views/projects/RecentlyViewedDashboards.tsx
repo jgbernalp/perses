@@ -11,13 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Stack, Typography, Card } from '@mui/material';
-import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
-import HistoryIcon from 'mdi-material-ui/History';
+import './RecentlyViewedDashboards.css';
+import { ErrorAlert, ErrorBoundary, useIcon } from '@perses-dev/components';
 import { ReactElement } from 'react';
 import { useRecentDashboardList } from '../../model/dashboard-client';
 import { RecentDashboardList } from '../../components/DashboardList/RecentDashboardList';
-import { MENU_TABS_HEIGHT } from '../../components/tabs';
 
 interface RecentlyViewedDashboardsProps {
   projectName: string;
@@ -25,36 +23,22 @@ interface RecentlyViewedDashboardsProps {
 }
 
 export function RecentlyViewedDashboards(props: RecentlyViewedDashboardsProps): ReactElement {
+  const HistoryIcon = useIcon('History');
   const { data, isLoading } = useRecentDashboardList(props.projectName);
 
   return (
-    <Box id={props.id}>
-      <Stack
-        alignItems="center"
-        sx={{
-          borderBottom: 1,
-          borderColor: 'divider',
-        }}
-      >
-        <Stack
-          alignItems="center"
-          sx={{
-            width: '100%',
-            height: MENU_TABS_HEIGHT,
-            flexDirection: 'row',
-          }}
-        >
+    <div id={props.id} className="ps-RecentlyViewedDashboards">
+      <div className="ps-RecentlyViewedDashboards-headerContainer">
+        <div className="ps-RecentlyViewedDashboards-header">
           <HistoryIcon />
-          <Typography ml={1} variant="h3">
-            Recently Viewed Dashboards
-          </Typography>
-        </Stack>
-      </Stack>
+          <h3 className="ps-RecentlyViewedDashboards-title">Recently Viewed Dashboards</h3>
+        </div>
+      </div>
       <ErrorBoundary FallbackComponent={ErrorAlert}>
-        <Card sx={{ marginTop: 2 }}>
+        <div className="ps-RecentlyViewedDashboards-card">
           <RecentDashboardList dashboardList={data} isLoading={isLoading} hideProject={true} />
-        </Card>
+        </div>
       </ErrorBoundary>
-    </Box>
+    </div>
   );
 }

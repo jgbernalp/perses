@@ -51,7 +51,7 @@ export function DatasourceDrawer<T extends Datasource>({
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={handleClickOut} data-testid="datasource-editor">
+    <Drawer open={isOpen} onClose={handleClickOut} data-testid="datasource-editor">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         <PluginRegistry pluginLoader={pluginLoader}>
           <ValidationProvider>

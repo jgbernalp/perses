@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './ProjectRoleBindings.css';
 import { RoleBinding, RoleBindingResource } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
 import { RoleBindingList } from '../../../components/rolebindings/RoleBindingList';
@@ -93,7 +93,7 @@ export function ProjectRoleBindings(props: ProjectRoleBindingsProps): ReactEleme
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-ProjectRoleBindings" id={id}>
       <RoleBindingList
         data={data ?? []}
         isLoading={isLoading}
@@ -115,6 +115,6 @@ export function ProjectRoleBindings(props: ProjectRoleBindingsProps): ReactEleme
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

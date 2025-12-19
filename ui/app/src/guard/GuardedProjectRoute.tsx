@@ -13,8 +13,7 @@
 
 import { Await, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { ReactElement, Suspense, useEffect, useState } from 'react';
-import { LinearProgress } from '@mui/material';
-import { useSnackbar } from '@perses-dev/components';
+import { Progress, useSnackbar } from '@perses-dev/components';
 import { ProjectResource } from '@perses-dev/core';
 import { getProject } from '../model/project-client';
 
@@ -38,7 +37,7 @@ function GuardedProjectRoute(): ReactElement {
   }, [exceptionSnackbar, navigate, projectName]);
 
   return (
-    <Suspense fallback={<LinearProgress />}>
+    <Suspense fallback={<Progress variant="linear" />}>
       <Await resolve={projectPromise}>
         <Outlet />
       </Await>

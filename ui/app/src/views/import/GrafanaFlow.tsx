@@ -11,23 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Alert,
-  Autocomplete,
-  Button,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-  FormControlLabel,
-  Checkbox,
-} from '@mui/material';
+import './GrafanaFlow.css';
 import { ReactElement, useState } from 'react';
-import Import from 'mdi-material-ui/Import';
 import { useNavigate } from 'react-router-dom';
 
-import { JSONEditor, useSnackbar } from '@perses-dev/components';
-import AutoFix from 'mdi-material-ui/AutoFix';
+import {
+  JSONEditor,
+  useSnackbar,
+  Button,
+  Progress,
+  Alert,
+  Checkbox,
+  FormTextField,
+  FormAutocomplete,
+  useIcon,
+} from '@perses-dev/components';
 import { useMigrate } from '../../model/migrate-client';
 import { useProjectList } from '../../model/project-client';
 import { useCreateDashboardMutation } from '../../model/dashboard-client';
@@ -52,6 +50,8 @@ interface GrafanaFlowProps {
 }
 
 function GrafanaFlow({ dashboard }: GrafanaFlowProps): ReactElement {
+  const ImportIcon = useIcon('Import');
+  const SparklesIcon = useIcon('Sparkles');
   const migrateMutation = useMigrate();
   const navigate = useNavigate();
   const isReadonly = useIsReadonly();
@@ -94,39 +94,30 @@ function GrafanaFlow({ dashboard }: GrafanaFlowProps): ReactElement {
       // These values will be provided to the backend that will take care to replace the variables called with the input name with the values provided.
       dashboard?.__inputs?.map((input, index) => {
         return (
-          <TextField
+          <FormTextField
             key={`input-${index}`}
             label={input.name}
             defaultValue={input.value ?? ''}
-            variant="outlined"
             onBlur={(e) => setInput(input.name, e.target.value)}
           />
         );
       })}
 
-      <Alert variant="outlined" severity="warning">
-        <Typography>
-          As we do not support every feature from Grafana, the migration to Perses can only be partial. For example,
-          unsupported panels are replaced by &quot;placeholder&quot; Markdown panels, to at least preserve the dashboard
-          structure.
-        </Typography>
+      <Alert severity="warning">
+        As we do not support every feature from Grafana, the migration to Perses can only be partial. For example,
+        unsupported panels are replaced by &quot;placeholder&quot; Markdown panels, to at least preserve the dashboard
+        structure.
       </Alert>
-      <Stack direction="column" gap={1} width="100%">
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={useDefaultDatasource}
-              onChange={(e) => setUseDefaultDatasource(e.target.checked)}
-              color="primary"
-            />
-          }
+      <div className="ps-GrafanaFlow-formControls">
+        <Checkbox
+          checked={useDefaultDatasource}
+          onChange={(checked) => setUseDefaultDatasource(checked)}
           label="Use default datasource in Perses"
         />
         <Button
           fullWidth
-          variant="contained"
+          variant="solid"
           disabled={migrateMutation.isPending}
-          startIcon={<AutoFix />}
           onClick={() => {
             migrateMutation.mutate({
               input: grafanaInput,
@@ -135,59 +126,50 @@ function GrafanaFlow({ dashboard }: GrafanaFlowProps): ReactElement {
             });
           }}
         >
+          <SparklesIcon style={{ marginRight: '8px' }} />
           Migrate
         </Button>
-      </Stack>
-      {migrateMutation.isPending && <CircularProgress sx={{ alignSelf: 'center' }} />}
-      {migrateMutation.isError && (
-        <Alert variant="outlined" severity="error">
-          {migrateMutation.error.message}
-        </Alert>
+      </div>
+      {migrateMutation.isPending && (
+        <div className="ps-GrafanaFlow-loading">
+          <Progress />
+        </div>
       )}
+      {migrateMutation.isError && <Alert severity="error">{migrateMutation.error.message}</Alert>}
       {!isLoading && data !== undefined && data !== null && migrateMutation.isSuccess && (
-        <Stack direction="column">
-          <Typography variant="h2" sx={{ paddingTop: 2, paddingBottom: 1 }}>
-            2. Migration output
-          </Typography>
+        <div className="ps-GrafanaFlow-outputSection">
+          <h2 className="ps-GrafanaFlow-sectionTitle">2. Migration output</h2>
           <JSONEditor value={migrateMutation.data} maxHeight="50rem" width="100%" readOnly />
-          <Typography variant="h2" sx={{ paddingTop: 2, paddingBottom: 1 }}>
-            3. Import
-          </Typography>
-          <Stack width="100%" gap={1}>
-            <Autocomplete
+          <h2 className="ps-GrafanaFlow-sectionTitle">3. Import</h2>
+          <div className="ps-GrafanaFlow-importSection">
+            <FormAutocomplete
               disablePortal
-              onChange={(event, value) => {
-                if (value) {
+              label="Project name"
+              required
+              options={data.map((project) => project.metadata.name)}
+              onChange={(value) => {
+                if (value && typeof value === 'string') {
                   setProjectName(value);
                 }
               }}
-              renderInput={(params) => <TextField {...params} required label="Project name" />}
-              options={data.map((project) => {
-                return project.metadata.name;
-              })}
             />
             <Button
               fullWidth
-              variant="contained"
+              variant="solid"
               disabled={dashboardMutation.isPending || projectName.length === 0 || isReadonly}
-              startIcon={<Import />}
               onClick={importOnClick}
-              sx={{ alignSelf: 'stretch' }}
             >
+              <ImportIcon style={{ marginRight: '8px' }} />
               Import
             </Button>
-            {dashboardMutation.isError && (
-              <Alert variant="outlined" severity="error">
-                {dashboardMutation.error.message}
-              </Alert>
-            )}
+            {dashboardMutation.isError && <Alert severity="error">{dashboardMutation.error.message}</Alert>}
             {isReadonly && (
-              <Alert severity="warning" sx={{ backgroundColor: 'transparent', padding: 0 }}>
+              <Alert severity="warning" className="ps-GrafanaFlow-readonlyAlert">
                 Dashboard managed via code only.
               </Alert>
             )}
-          </Stack>
-        </Stack>
+          </div>
+        </div>
       )}
     </>
   );

@@ -13,13 +13,8 @@
 
 import { Action, getResourceDisplayName, getVariableProject, Variable } from '@perses-dev/core';
 import React, { ReactElement, useCallback, useMemo, useState } from 'react';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
-import { IconButton, Stack, Tooltip } from '@mui/material';
-import PencilIcon from 'mdi-material-ui/Pencil';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import { useSnackbar } from '@perses-dev/components';
-import Clipboard from 'mdi-material-ui/ClipboardOutline';
-import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
+import { GridColDef, GridRowParams, IconButton, Tooltip, useIcon, useSnackbar } from '@perses-dev/components';
+import './VariableList.css';
 import { useIsReadonly } from '../../context/Config';
 import { GlobalProject } from '../../context/Authorization';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
@@ -48,6 +43,9 @@ import { VariableDrawer } from './VariableDrawer';
  */
 export function VariableList<T extends Variable>(props: ListPropertiesWithCallbacks<T>): ReactElement {
   const { data, hideToolbar, isLoading, initialState, onCreate, onUpdate, onDelete } = props;
+  const CopyIcon = useIcon('Copy');
+  const EditIcon = useIcon('Edit');
+  const DeleteIcon = useIcon('Delete');
   const isReadonly = useIsReadonly();
   const { infoSnackbar } = useSnackbar();
 
@@ -136,7 +134,7 @@ export function VariableList<T extends Variable>(props: ListPropertiesWithCallba
     [findVariable]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       PROJECT_COL_DEF,
       NAME_COL_DEF,
@@ -148,22 +146,27 @@ export function VariableList<T extends Variable>(props: ListPropertiesWithCallba
         flex: 3,
         minWidth: 150,
         valueGetter: (_, row): string => `$${row.name}`,
-        renderCell: (params): ReactElement => (
-          <>
-            <span style={{ fontFamily: 'monospace' }}>{params.value}</span>
-            <Tooltip title="Copy variable to clipboard" placement="top">
-              <IconButton
-                onClick={async ($event) => {
-                  $event.stopPropagation();
-                  await handleCopyVarNameButtonClick(params.value);
-                }}
-                size="small"
-              >
-                <Clipboard />
-              </IconButton>
-            </Tooltip>
-          </>
-        ),
+        renderCell: (params): ReactElement => {
+          const value = String(params.value ?? '');
+
+          return (
+            <>
+              <span style={{ fontFamily: 'monospace' }}>{value}</span>
+              <Tooltip content="Copy variable to clipboard" placement="top">
+                <IconButton
+                  onClick={async (event) => {
+                    event.stopPropagation();
+                    await handleCopyVarNameButtonClick(value);
+                  }}
+                  size="sm"
+                  aria-label="Copy variable to clipboard"
+                >
+                  <CopyIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          );
+        },
       },
       DESCRIPTION_COL_DEF,
       { field: 'type', headerName: 'Type', type: 'string', flex: 3, minWidth: 150 },
@@ -176,10 +179,10 @@ export function VariableList<T extends Variable>(props: ListPropertiesWithCallba
         type: 'actions',
         flex: 0.5,
         minWidth: 150,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
+        getActions: (params: GridRowParams): ReactElement[] => [
           <CRUDGridActionsCellItem
             key={params.id + '-edit'}
-            icon={<PencilIcon />}
+            icon={<EditIcon />}
             label="Edit"
             action="update"
             scope={params.row.project ? 'Variable' : 'GlobalVariable'}
@@ -188,7 +191,7 @@ export function VariableList<T extends Variable>(props: ListPropertiesWithCallba
           />,
           <CRUDGridActionsCellItem
             key={params.id + '-duplicate'}
-            icon={<ContentCopyIcon />}
+            icon={<CopyIcon />}
             label="Duplicate"
             action="create"
             scope={params.row.project ? 'Variable' : 'GlobalVariable'}
@@ -207,21 +210,19 @@ export function VariableList<T extends Variable>(props: ListPropertiesWithCallba
         ],
       },
     ],
-    [handleCopyVarNameButtonClick, handleEditButtonClick, handleDuplicateButtonClick, handleDeleteButtonClick]
+    [handleCopyVarNameButtonClick, handleDeleteButtonClick, handleDuplicateButtonClick, handleEditButtonClick]
   );
 
   return (
-    <>
-      <Stack width="100%">
-        <VariableDataGrid
-          columns={columns}
-          rows={rows}
-          onRowClick={handleRowClick}
-          initialState={initialState}
-          hideToolbar={hideToolbar}
-          isLoading={isLoading}
-        ></VariableDataGrid>
-      </Stack>
+    <div className="ps-VariableList">
+      <VariableDataGrid
+        columns={columns}
+        rows={rows}
+        onRowClick={handleRowClick}
+        initialState={initialState}
+        hideToolbar={hideToolbar}
+        isLoading={isLoading}
+      />
       {targetedVariable && (
         <>
           <VariableDrawer
@@ -231,17 +232,17 @@ export function VariableList<T extends Variable>(props: ListPropertiesWithCallba
             isReadonly={isReadonly}
             onActionChange={setAction}
             onSave={handleVariableSave}
-            onDelete={(v) => onDelete(v).then(() => setDeleteVariableDialogOpened(false))}
+            onDelete={(v: T) => onDelete(v).then(() => setDeleteVariableDialogOpened(false))}
             onClose={() => setVariableDrawerOpened(false)}
           />
           <DeleteResourceDialog
             open={isDeleteVariableDialogOpened}
             resource={targetedVariable}
             onClose={() => setDeleteVariableDialogOpened(false)}
-            onSubmit={(v) => onDelete(v).then(() => setDeleteVariableDialogOpened(false))}
+            onSubmit={(v: T) => onDelete(v).then(() => setDeleteVariableDialogOpened(false))}
           />
         </>
       )}
-    </>
+    </div>
   );
 }

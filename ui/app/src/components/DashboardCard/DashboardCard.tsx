@@ -11,12 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Stack, Typography } from '@mui/material';
-import ViewDashboardIcon from 'mdi-material-ui/ViewDashboard';
+import { Button, useIcon } from '@perses-dev/components';
 import { DashboardResource, getResourceDisplayName } from '@perses-dev/core';
-import Archive from 'mdi-material-ui/Archive';
 import { Link as RouterLink } from 'react-router-dom';
 import { ReactElement } from 'react';
+import './DashboardCard.css';
 
 interface DashboardCardProps {
   dashboard: DashboardResource;
@@ -24,62 +23,28 @@ interface DashboardCardProps {
 }
 
 export function DashboardCard({ dashboard, hideIcon }: DashboardCardProps): ReactElement {
+  const DashboardIcon = useIcon('Dashboard');
+  const ArchiveIcon = useIcon('Archive');
   return (
     <Button
-      variant="contained"
-      fullWidth
-      sx={{
-        justifyContent: 'start',
-        backgroundColor: (theme) => theme.palette.designSystem.blue[700],
-      }}
+      variant="solid"
+      className="ps-DashboardCard"
       title={getResourceDisplayName(dashboard)}
-      component={RouterLink}
-      to={`/projects/${dashboard.metadata.project}/dashboards/${dashboard.metadata.name}`}
       data-testid={`dashboard-card-${dashboard.metadata.project}-${dashboard.metadata.name}`}
     >
-      <Stack
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          width: '100%',
-          overflowX: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {!hideIcon && <ViewDashboardIcon />}
-        <Stack sx={{ flexDirection: 'column', maxWidth: '90%' }}>
-          <Typography
-            variant="h3"
-            sx={{
-              textAlign: 'start',
-              overflowX: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-            title={getResourceDisplayName(dashboard)}
-          >
-            {getResourceDisplayName(dashboard)}
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              textAlign: 'start',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              overflowX: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-            }}
-            title={dashboard.metadata.project}
-          >
-            <Archive fontSize="small" /> {dashboard.metadata.project}
-          </Typography>
-        </Stack>
-      </Stack>
+      <RouterLink to={`/projects/${dashboard.metadata.project}/dashboards/${dashboard.metadata.name}`}>
+        <span className="ps-DashboardCard-content">
+          {!hideIcon && <DashboardIcon />}
+          <span className="ps-DashboardCard-info">
+            <span className="ps-DashboardCard-title" title={getResourceDisplayName(dashboard)}>
+              {getResourceDisplayName(dashboard)}
+            </span>
+            <span className="ps-DashboardCard-project" title={dashboard.metadata.project}>
+              <ArchiveIcon fontSize="small" /> {dashboard.metadata.project}
+            </span>
+          </span>
+        </span>
+      </RouterLink>
     </Button>
   );
 }

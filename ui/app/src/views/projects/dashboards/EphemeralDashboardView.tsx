@@ -11,15 +11,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CircularProgress, Stack } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSnackbar } from '@perses-dev/components';
+import { Progress, useSnackbar } from '@perses-dev/components';
 import { DashboardResource, EphemeralDashboardResource, getResourceExtendedDisplayName } from '@perses-dev/core';
 import { ReactElement, useCallback, useEffect } from 'react';
 import { useEphemeralDashboard, useUpdateEphemeralDashboardMutation } from '../../../model/ephemeral-dashboard-client';
 import { useIsReadonly } from '../../../context/Config';
 import { useNavHistoryDispatch } from '../../../context/DashboardNavHistory';
 import { HelperDashboardView } from './HelperDashboardView';
+import './EphemeralDashboardView.css';
 
 /**
  * The View for displaying an existing EphemeralDashboard.
@@ -72,9 +72,9 @@ function EphemeralDashboardView(): ReactElement | null {
 
   if (isLoading) {
     return (
-      <Stack width="100%" sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Stack>
+      <div className="ps-EphemeralDashboardView-loading">
+        <Progress />
+      </div>
     );
   }
   if (ephemeralDashboardNotFoundError !== null) {

@@ -17,14 +17,11 @@ import {
   parseDurationString,
   getResourceExtendedDisplayName,
 } from '@perses-dev/core';
-import { Box, Stack, Tooltip } from '@mui/material';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import PencilIcon from 'mdi-material-ui/Pencil';
+import { GridColDef, GridRowParams, Tooltip, useIcon, useSnackbar } from '@perses-dev/components';
 import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { intlFormatDistance, add } from 'date-fns';
-import { useSnackbar } from '@perses-dev/components';
 import { DeleteResourceDialog, UpdateEphemeralDashboardDialog } from '../dialogs';
+import './EphemeralDashboardList.css';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
 import {
   CREATED_AT_COL_DEF,
@@ -50,6 +47,8 @@ export interface EphemeralDashboardListProperties extends ListProperties {
  */
 export function EphemeralDashboardList(props: EphemeralDashboardListProperties): ReactElement {
   const { ephemeralDashboardList, hideToolbar, isLoading, initialState } = props;
+  const DeleteIcon = useIcon('Delete');
+  const EditIcon = useIcon('Edit');
   const { successSnackbar, exceptionSnackbar } = useSnackbar();
   const deleteEphemeralDashboardMutation = useDeleteEphemeralDashboardMutation();
 
@@ -125,7 +124,7 @@ export function EphemeralDashboardList(props: EphemeralDashboardListProperties):
     [getDashboard]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       PROJECT_COL_DEF,
       DISPLAY_NAME_COL_DEF,
@@ -136,12 +135,16 @@ export function EphemeralDashboardList(props: EphemeralDashboardListProperties):
         type: 'dateTime',
         flex: 3,
         minWidth: 150,
-        valueGetter: (_, row): Date => new Date(row.expireAt),
-        renderCell: (params): ReactElement => (
-          <Tooltip title={params.value.toUTCString()} placement="top">
-            <span>{intlFormatDistance(params.value, new Date())}</span>
-          </Tooltip>
-        ),
+        valueGetter: (_, row): Date => new Date((row as Row).expireAt),
+        renderCell: (params): ReactElement => {
+          const date = params.value as Date;
+
+          return (
+            <Tooltip content={date.toUTCString()} placement="top">
+              <span>{intlFormatDistance(date, new Date())}</span>
+            </Tooltip>
+          );
+        },
       },
       CREATED_AT_COL_DEF,
       UPDATED_AT_COL_DEF,
@@ -151,33 +154,37 @@ export function EphemeralDashboardList(props: EphemeralDashboardListProperties):
         type: 'actions',
         flex: 0.5,
         minWidth: 100,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Rename"
-            action="update"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={onRenameButtonClick(params.row.project, params.row.name)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={onDeleteButtonClick(params.row.project, params.row.name)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Rename"
+              action="update"
+              scope="Dashboard"
+              project={row.project}
+              onClick={onRenameButtonClick(row.project, row.name)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope="Dashboard"
+              project={row.project}
+              onClick={onDeleteButtonClick(row.project, row.name)}
+            />,
+          ];
+        },
       },
     ],
     [onRenameButtonClick, onDeleteButtonClick]
   );
 
   return (
-    <Stack width="100%">
+    <div className="ps-EphemeralDashboardList">
       <EphemeralDashboardDataGrid
         rows={rows}
         columns={columns}
@@ -185,7 +192,7 @@ export function EphemeralDashboardList(props: EphemeralDashboardListProperties):
         hideToolbar={hideToolbar}
         isLoading={isLoading}
       />
-      <Box>
+      <div>
         {targetedEphemeralDashboard && (
           <>
             <UpdateEphemeralDashboardDialog
@@ -201,7 +208,7 @@ export function EphemeralDashboardList(props: EphemeralDashboardListProperties):
             />
           </>
         )}
-      </Box>
-    </Stack>
+      </div>
+    </div>
   );
 }

@@ -1,0 +1,111 @@
+/* Copyright 2024 The Perses Authors
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+.ps-SearchBar {
+  width: 100%;
+  flex-shrink: 1;
+}
+
+.ps-SearchBar-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ps-SearchBar-triggerContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.ps-SearchBar-searchIcon {
+  margin-right: var(--ps-spacing-xs);
+}
+
+.ps-SearchBar-shortcut {
+  font-size: var(--ps-font-size-xs);
+  padding: 2px 6px;
+  background-color: var(--ps-surface-secondary);
+  border-radius: var(--ps-radius-sm);
+}
+
+.ps-SearchBar-modal {
+  max-height: 70vh;
+  width: 55%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-y: auto;
+  height: auto;
+  background-color: var(--ps-surface-color);
+  border: 1px solid var(--ps-border-color);
+  border-radius: var(--ps-radius-md);
+  padding: var(--ps-spacing-md);
+}
+
+.ps-SearchBar-modal[data-mobile] {
+  width: 95%;
+}
+
+.ps-SearchBar-inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--ps-spacing-sm);
+  padding: var(--ps-spacing-sm);
+  border: 1px solid var(--ps-border-color);
+  border-radius: var(--ps-radius-sm);
+  margin-bottom: var(--ps-spacing-sm);
+}
+
+.ps-SearchBar-inputIcon {
+  color: var(--ps-text-secondary);
+}
+
+.ps-SearchBar-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.ps-SearchBar-escKey {
+  font-size: var(--ps-font-size-xs);
+  padding: 2px 8px;
+  background-color: var(--ps-surface-secondary);
+  border: 1px solid var(--ps-border-color);
+  border-radius: var(--ps-radius-sm);
+  cursor: pointer;
+}
+
+.ps-SearchBar-noResults {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--ps-spacing-sm);
+  padding: var(--ps-spacing-md);
+}
+
+.ps-SearchBar-error {
+  margin: var(--ps-spacing-sm);
+}
+
+.ps-SearchBar-alert {
+  padding: var(--ps-spacing-sm);
+  border-radius: var(--ps-radius-sm);
+}
+
+.ps-SearchBar-alert[data-severity='error'] {
+  background-color: var(--ps-error-background);
+  color: var(--ps-error-text);
+  border: 1px solid var(--ps-error-border);
+}

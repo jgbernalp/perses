@@ -11,69 +11,52 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { MouseEvent, ReactElement, useState } from 'react';
-import { Divider, IconButton, ListItemIcon, Menu, MenuItem } from '@mui/material';
-import AccountCircle from 'mdi-material-ui/AccountCircle';
-import AccountBox from 'mdi-material-ui/AccountBox';
-import Logout from 'mdi-material-ui/Logout';
+import { ReactElement } from 'react';
+import { IconButton, Menu, MenuContent, MenuItem, MenuTrigger, Separator, useIcon } from '@perses-dev/components';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuthToken } from '../../model/auth-client';
 import { ProfileRoute } from '../../model/route';
 import { ThemeSwitch } from './ThemeSwitch';
+import './AccountMenu.css';
 
 export function AccountMenu(): ReactElement {
+  const AccountCircleIcon = useIcon('AccountCircle');
+  const AccountBoxIcon = useIcon('AccountBox');
+  const LogoutIcon = useIcon('Logout');
   const { data: decodedToken } = useAuthToken();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleMenu = (event: MouseEvent<HTMLElement>): void => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = (): void => {
-    setAnchorEl(null);
-  };
   return (
-    <>
-      <IconButton
-        aria-label="Account menu"
-        aria-controls="menu-account-list-appbar"
-        aria-haspopup="true"
-        color="inherit"
-        onClick={handleMenu}
-      >
-        <AccountCircle />
-      </IconButton>
-      <Menu
-        id="menu-account-list-appbar"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        keepMounted
-        open={anchorEl !== null}
-        onClose={handleCloseMenu}
-      >
-        <MenuItem>
-          <ListItemIcon>
-            <AccountCircle />
-          </ListItemIcon>
+    <Menu>
+      <MenuTrigger>
+        <IconButton
+          aria-label="Account menu"
+          aria-controls="menu-account-list-appbar"
+          aria-haspopup="true"
+          className="ps-AccountMenu-trigger"
+        >
+          <AccountCircleIcon />
+        </IconButton>
+      </MenuTrigger>
+      <MenuContent id="menu-account-list-appbar">
+        <MenuItem disabled>
+          <AccountCircleIcon className="ps-AccountMenu-icon" />
           {decodedToken?.sub}
         </MenuItem>
-        <Divider />
+        <Separator />
         <ThemeSwitch isAuthEnabled />
-        <MenuItem component={RouterLink} to={ProfileRoute}>
-          <ListItemIcon>
-            <AccountBox />
-          </ListItemIcon>
-          Profile
+        <MenuItem>
+          <RouterLink to={ProfileRoute} className="ps-AccountMenu-item">
+            <AccountBoxIcon className="ps-AccountMenu-icon" />
+            Profile
+          </RouterLink>
         </MenuItem>
-        <MenuItem component="a" href="/api/auth/logout">
-          <ListItemIcon>
-            <Logout />
-          </ListItemIcon>
-          Logout
+        <MenuItem>
+          <a href="/api/auth/logout" className="ps-AccountMenu-item">
+            <LogoutIcon className="ps-AccountMenu-icon" />
+            Logout
+          </a>
         </MenuItem>
-      </Menu>
-    </>
+      </MenuContent>
+    </Menu>
   );
 }

@@ -12,8 +12,7 @@
 // limitations under the License.
 
 import { Dispatch, DispatchWithoutAction, ReactElement } from 'react';
-import { Button, TextField } from '@mui/material';
-import { Dialog, useSnackbar } from '@perses-dev/components';
+import { Dialog, Button, TextField, useSnackbar } from '@perses-dev/components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { getResourceDisplayName, ProjectResource } from '@perses-dev/core';
@@ -75,7 +74,7 @@ export function CreateProjectDialog(props: CreateProjectDialogProps): ReactEleme
       <Dialog.Header>Add Project</Dialog.Header>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(processForm)}>
-          <Dialog.Content sx={{ width: '100%' }}>
+          <Dialog.Content>
             <Controller
               control={form.control}
               name="projectName"
@@ -83,11 +82,9 @@ export function CreateProjectDialog(props: CreateProjectDialogProps): ReactEleme
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="name"
                   label="Name"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
                 />
@@ -95,10 +92,10 @@ export function CreateProjectDialog(props: CreateProjectDialogProps): ReactEleme
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button variant="contained" type="submit" disabled={!form.formState.isValid}>
+            <Button variant="solid" type="submit" disabled={!form.formState.isValid}>
               Add
             </Button>
-            <Button variant="outlined" color="secondary" onClick={handleClose}>
+            <Button variant="outlined" onClick={handleClose}>
               Cancel
             </Button>
           </Dialog.Actions>

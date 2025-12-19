@@ -11,9 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@perses-dev/components';
 import { Action, Scope } from '@perses-dev/core';
-import { GridActionsCellItem } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
 import { useIsReadonly } from '../../context/Config';
 import { GlobalProject, useHasPermission } from '../../context/Authorization';
@@ -44,9 +43,11 @@ export function CRUDGridActionsCellItem({
 
   if (isReadonly) {
     return (
-      <Tooltip title="Resource managed via code only" placement="top">
+      <Tooltip content="Resource managed via code only" placement="top">
         <span>
-          <GridActionsCellItem icon={icon} label={label} disabled />
+          <IconButton variant="ghost" aria-label={label} disabled size="sm">
+            {icon}
+          </IconButton>
         </span>
       </Tooltip>
     );
@@ -59,18 +60,22 @@ export function CRUDGridActionsCellItem({
         : `Missing '${action}' permission in '${project}' project for '${scope}' kind`;
 
     return (
-      <Tooltip title={errorMessage} placement="top">
+      <Tooltip content={errorMessage} placement="top">
         <span>
-          <GridActionsCellItem icon={icon} label={label} disabled />
+          <IconButton variant="ghost" aria-label={label} disabled size="sm">
+            {icon}
+          </IconButton>
         </span>
       </Tooltip>
     );
   }
 
   return (
-    <Tooltip title={label} placement="top">
+    <Tooltip content={label} placement="top">
       <span>
-        <GridActionsCellItem icon={icon} label={label} onClick={onClick} />
+        <IconButton variant="ghost" aria-label={label} size="sm" onClick={onClick}>
+          {icon}
+        </IconButton>
       </span>
     </Tooltip>
   );

@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { List, ListItem, ListItemIcon, ListItemText, useIcon } from '@perses-dev/components';
+import './ProfileSettings.css';
 import React, { ReactElement } from 'react';
-import ShieldAccount from 'mdi-material-ui/ShieldAccount';
 import { ProfileSections } from './ProfileView';
 
 interface IAccountSettingItem {
@@ -33,11 +33,12 @@ interface IProps {
 }
 
 export const ProfileSettings = ({ selectedView, setSelectedView }: IProps): ReactElement => {
+  const ShieldAccountIcon = useIcon('ShieldAccount');
   const accountSettingsItems: IAccountSettingItem[] = [
     {
       title: 'Permissions and roles',
       view: ProfileSections.PERMISSIONS,
-      icon: <ShieldAccount sx={{ fontSize: 24 }} />,
+      icon: <ShieldAccountIcon className="ps-ProfileSettings-icon" />,
     },
   ];
 
@@ -48,60 +49,29 @@ export const ProfileSettings = ({ selectedView, setSelectedView }: IProps): Reac
   };
 
   return (
-    <Box
-      data-testid="profile-settings-container"
-      sx={{
-        padding: (theme) => theme.spacing(1, 1),
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1,
-      }}
-    >
+    <div data-testid="profile-settings-container" className="ps-ProfileSettings">
       {settings.map((s) => (
         <React.Fragment key={s.title}>
-          <Box
-            key={s.title}
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 1,
-              justifyContent: 'flex-start',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="h2">{s.title}</Typography>
-          </Box>
+          <div key={s.title} className="ps-ProfileSettings-titleRow">
+            <h2>{s.title}</h2>
+          </div>
           <List>
             {s.items.map((i) => (
               <ListItem
                 role="button"
                 key={i.view}
                 onClick={() => handleViewChange(i.view)}
-                sx={{
-                  color: 'text.primary',
-                  paddingY: 0.5,
-                  cursor: 'pointer',
-                  backgroundColor: selectedView === i.view ? 'action.selected' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                  },
-                }}
+                className={`ps-ProfileSettings-listItem ${selectedView === i.view ? 'ps-ProfileSettings-listItem--selected' : ''}`}
               >
-                <ListItemIcon
-                  sx={{ minWidth: '36px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-                >
-                  {i.icon}
-                </ListItemIcon>
+                <ListItemIcon className="ps-ProfileSettings-listItemIcon">{i.icon}</ListItemIcon>
                 <ListItemText>
-                  <Typography variant="h3" sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                    {i.title}
-                  </Typography>
+                  <h3 className="ps-ProfileSettings-itemTitle">{i.title}</h3>
                 </ListItemText>
               </ListItem>
             ))}
           </List>
         </React.Fragment>
       ))}
-    </Box>
+    </div>
   );
 };

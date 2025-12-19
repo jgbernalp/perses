@@ -12,12 +12,10 @@
 // limitations under the License.
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Stack, Grid, CircularProgress } from '@mui/material';
+import './ProjectView.css';
 import React, { ReactElement, useState } from 'react';
-import DeleteOutline from 'mdi-material-ui/DeleteOutline';
-import PencilIcon from 'mdi-material-ui/Pencil';
 import { ProjectResource } from '@perses-dev/core';
-import { useSnackbar } from '@perses-dev/components';
+import { useSnackbar, Progress, useIcon } from '@perses-dev/components';
 import { DeleteResourceDialog, RenameResourceDialog } from '../../components/dialogs';
 import ProjectBreadcrumbs from '../../components/breadcrumbs/ProjectBreadcrumbs';
 import { CRUDButton } from '../../components/CRUDButton/CRUDButton';
@@ -27,6 +25,8 @@ import { RecentlyViewedDashboards } from './RecentlyViewedDashboards';
 import { ProjectTabs } from './ProjectTabs';
 
 function ProjectView(): ReactElement {
+  const DeleteIcon = useIcon('Delete');
+  const EditIcon = useIcon('Edit');
   const { projectName, tab } = useParams();
   if (projectName === undefined) {
     throw new Error('Unable to get the project name');
@@ -80,25 +80,25 @@ function ProjectView(): ReactElement {
 
   if (isLoading || project === undefined) {
     return (
-      <Stack width="100%" sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Stack>
+      <div className="ps-ProjectView-loading">
+        <Progress variant="circular" />
+      </div>
     );
   }
 
   return (
-    <Stack sx={{ width: '100%', overflowX: 'hidden' }} m={isMobileSize ? 1 : 2} mt={1.5} gap={1}>
-      <Box display="flex" justifyContent="space-between" gap={1}>
+    <div className={`ps-ProjectView ${isMobileSize ? 'ps-ProjectView--mobile' : ''}`}>
+      <div className="ps-ProjectView-header">
         <ProjectBreadcrumbs project={project} />
-        <Stack mt={0.5} gap={1} direction="row">
+        <div className="ps-ProjectView-actions">
           <CRUDButton
             action="update"
             scope="Project"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setIsRenameProjectDialogOpen(true)}
           >
-            {isMobileSize ? <PencilIcon /> : 'Rename project'}
+            {isMobileSize ? <EditIcon /> : 'Rename project'}
           </CRUDButton>
           <CRUDButton
             action="delete"
@@ -108,9 +108,9 @@ function ProjectView(): ReactElement {
             color="error"
             onClick={() => setIsDeleteProjectDialogOpen(true)}
           >
-            {isMobileSize ? <DeleteOutline /> : 'Delete project'}
+            {isMobileSize ? <DeleteIcon /> : 'Delete project'}
           </CRUDButton>
-        </Stack>
+        </div>
         <RenameResourceDialog
           resource={project}
           open={isRenameProjectDialogOpen}
@@ -123,16 +123,16 @@ function ProjectView(): ReactElement {
           onSubmit={() => handleProjectDelete(projectName)}
           onClose={() => setIsDeleteProjectDialogOpen(false)}
         />
-      </Box>
-      <Grid container columnSpacing={8} rowSpacing={1}>
-        <Grid item xs={12} xl={8}>
+      </div>
+      <div className="ps-ProjectView-grid">
+        <div className="ps-ProjectView-main">
           <ProjectTabs projectName={projectName} initialTab={tab} />
-        </Grid>
-        <Grid item xs={12} xl={4}>
+        </div>
+        <div className="ps-ProjectView-sidebar">
           <RecentlyViewedDashboards projectName={projectName} id="recent-dashboard-list" />
-        </Grid>
-      </Grid>
-    </Stack>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -11,14 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useSnackbar } from '@perses-dev/components';
-import Brightness5 from 'mdi-material-ui/Brightness5';
-import Brightness4 from 'mdi-material-ui/Brightness4';
-import { IconButton, ListItemIcon, MenuItem, Tooltip } from '@mui/material';
+import { useSnackbar, IconButton, Tooltip, MenuItem, useIcon } from '@perses-dev/components';
 import React, { ReactElement } from 'react';
 import { useDarkMode } from '../../context/DarkMode';
+import './ThemeSwitch.css';
 
 export function ThemeSwitch(props: { isAuthEnabled: boolean }): ReactElement {
+  const SunIcon = useIcon('Sun');
+  const MoonIcon = useIcon('Moon');
   const { isDarkModeEnabled, setDarkMode } = useDarkMode();
   const { exceptionSnackbar } = useSnackbar();
   const handleDarkModeChange = (): void => {
@@ -29,19 +29,18 @@ export function ThemeSwitch(props: { isAuthEnabled: boolean }): ReactElement {
     }
   };
   const swapIcon = (): ReactElement => {
-    return isDarkModeEnabled ? <Brightness5 id="dark" /> : <Brightness4 id="light" />;
+    return isDarkModeEnabled ? <SunIcon id="dark" /> : <MoonIcon id="light" />;
   };
   if (props.isAuthEnabled) {
     return (
-      <MenuItem onClick={handleDarkModeChange}>
-        <ListItemIcon>{swapIcon()}</ListItemIcon>
+      <MenuItem onSelect={handleDarkModeChange} startIcon={swapIcon()}>
         Switch Theme
       </MenuItem>
     );
   }
   return (
-    <Tooltip title="Switch Theme">
-      <IconButton onClick={handleDarkModeChange} aria-label="Theme" style={{ color: 'white' }}>
+    <Tooltip content="Switch Theme">
+      <IconButton onClick={handleDarkModeChange} aria-label="Theme" className="ps-ThemeSwitch-button">
         {swapIcon()}
       </IconButton>
     </Tooltip>

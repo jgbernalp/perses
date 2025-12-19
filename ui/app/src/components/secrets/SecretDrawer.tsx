@@ -41,7 +41,7 @@ export function SecretDrawer<T extends Secret>({
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={handleClickOut} data-testid="secret-editor">
+    <Drawer open={isOpen} onClose={handleClickOut} data-testid="secret-editor">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         {isOpen && (
           <SecretEditorForm

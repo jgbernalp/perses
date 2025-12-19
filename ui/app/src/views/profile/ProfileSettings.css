@@ -1,0 +1,64 @@
+/* Copyright 2024 The Perses Authors
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+.ps-ProfileSettings {
+  padding: var(--ps-spacing-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-spacing-xs);
+}
+
+.ps-ProfileSettings-titleRow {
+  display: flex;
+  flex-direction: row;
+  gap: var(--ps-spacing-xs);
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.ps-ProfileSettings-titleRow h2 {
+  margin: 0;
+}
+
+.ps-ProfileSettings-itemTitle {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ps-ProfileSettings-icon {
+  font-size: 24px;
+}
+
+.ps-ProfileSettings-listItem {
+  color: var(--ps-text-primary);
+  padding-top: var(--ps-spacing-0-5);
+  padding-bottom: var(--ps-spacing-0-5);
+  cursor: pointer;
+}
+
+.ps-ProfileSettings-listItem:hover {
+  background-color: var(--ps-action-hover);
+}
+
+.ps-ProfileSettings-listItem--selected {
+  background-color: var(--ps-action-selected);
+}
+
+.ps-ProfileSettings-listItemIcon {
+  min-width: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

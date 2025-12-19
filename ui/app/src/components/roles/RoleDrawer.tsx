@@ -41,7 +41,7 @@ export function RoleDrawer<T extends Role>({
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={handleClickOut} data-testid="role-editor">
+    <Drawer open={isOpen} onClose={handleClickOut} data-testid="role-editor">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         {isOpen && (
           <RoleEditorForm

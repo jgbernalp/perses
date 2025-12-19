@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { getResourceDisplayName, GlobalDatasourceResource } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
+import './GlobalDatasources.css';
 import { ReactElement, useCallback } from 'react';
 import { DatasourceList } from '../../../components/datasource/DatasourceList';
 import {
@@ -101,7 +101,7 @@ export function GlobalDatasources(props: GlobalDatasourcesProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-GlobalDatasources" id={id}>
       <DatasourceList
         data={data || []}
         hideToolbar={hideToolbar}
@@ -120,6 +120,6 @@ export function GlobalDatasources(props: GlobalDatasourcesProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

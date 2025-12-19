@@ -12,8 +12,7 @@
 // limitations under the License.
 
 import { Dispatch, DispatchWithoutAction, ReactElement } from 'react';
-import { Button, TextField } from '@mui/material';
-import { Dialog, useSnackbar } from '@perses-dev/components';
+import { Button, Dialog, TextField, useSnackbar } from '@perses-dev/components';
 import {
   DurationString,
   EphemeralDashboardResource,
@@ -92,7 +91,7 @@ export const UpdateEphemeralDashboardDialog = (props: UpdateEphemeralDashboardDi
       <Dialog.Header>Update Ephemeral Dashboard</Dialog.Header>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(processForm)}>
-          <Dialog.Content sx={{ width: '100%' }}>
+          <Dialog.Content>
             <Controller
               control={form.control}
               name="dashboardName"
@@ -100,11 +99,9 @@ export const UpdateEphemeralDashboardDialog = (props: UpdateEphemeralDashboardDi
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="name"
                   label="Name"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
                 />
@@ -117,11 +114,9 @@ export const UpdateEphemeralDashboardDialog = (props: UpdateEphemeralDashboardDi
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="name"
                   label="Time to live (TTL)"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message ? fieldState.error.message : 'Duration string like 1w, 3d12h..'}
                 />
@@ -129,10 +124,10 @@ export const UpdateEphemeralDashboardDialog = (props: UpdateEphemeralDashboardDi
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button variant="contained" disabled={!form.formState.isValid} type="submit">
+            <Button variant="solid" disabled={!form.formState.isValid} type="submit">
               Save
             </Button>
-            <Button variant="outlined" color="secondary" onClick={handleClose}>
+            <Button variant="outlined" onClick={handleClose}>
               Cancel
             </Button>
           </Dialog.Actions>

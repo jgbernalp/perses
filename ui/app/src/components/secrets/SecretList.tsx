@@ -13,13 +13,8 @@
 
 import { Action, getMetadataProject, Secret } from '@perses-dev/core';
 import React, { ReactElement, useCallback, useMemo, useState } from 'react';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
-import { IconButton, Stack, Tooltip } from '@mui/material';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import ClipboardIcon from 'mdi-material-ui/ClipboardOutline';
-import { useSnackbar } from '@perses-dev/components';
-import PencilIcon from 'mdi-material-ui/Pencil';
-import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
+import { GridColDef, GridRowParams, IconButton, Tooltip, useIcon, useSnackbar } from '@perses-dev/components';
+import './SecretList.css';
 import { GlobalProject } from '../../context/Authorization';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
 import { useIsReadonly } from '../../context/Config';
@@ -53,6 +48,9 @@ export function SecretList<T extends Secret>({
   onUpdate,
   onDelete,
 }: ListPropertiesWithCallbacks<T>): ReactElement {
+  const DeleteIcon = useIcon('Delete');
+  const CopyIcon = useIcon('Copy');
+  const EditIcon = useIcon('Edit');
   const { infoSnackbar } = useSnackbar();
   const isReadonly = useIsReadonly();
 
@@ -143,7 +141,7 @@ export function SecretList<T extends Secret>({
     [findSecret]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       PROJECT_COL_DEF,
       NAME_COL_DEF,
@@ -153,23 +151,28 @@ export function SecretList<T extends Secret>({
         type: 'string',
         flex: 3,
         minWidth: 150,
-        valueGetter: (_, row): string => row.name,
-        renderCell: (params): ReactElement => (
-          <>
-            <span style={{ fontFamily: 'monospace' }}>{params.value}</span>
-            <Tooltip title="Copy secret to clipboard" placement="top">
-              <IconButton
-                onClick={async ($event) => {
-                  $event.stopPropagation();
-                  await handleCopyNameButtonClick(params.value);
-                }}
-                size="small"
-              >
-                <ClipboardIcon />
-              </IconButton>
-            </Tooltip>
-          </>
-        ),
+        valueGetter: (_, row): string => (row as Row).name,
+        renderCell: (params): ReactElement => {
+          const value = String(params.value ?? '');
+
+          return (
+            <>
+              <span style={{ fontFamily: 'monospace' }}>{value}</span>
+              <Tooltip content="Copy secret to clipboard" placement="top">
+                <IconButton
+                  onClick={async ($event) => {
+                    $event.stopPropagation();
+                    await handleCopyNameButtonClick(value);
+                  }}
+                  size="sm"
+                  aria-label="Copy secret to clipboard"
+                >
+                  <CopyIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          );
+        },
       },
       {
         field: 'noAuth',
@@ -197,35 +200,41 @@ export function SecretList<T extends Secret>({
         type: 'actions',
         flex: 0.5,
         minWidth: 150,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Edit"
-            action="update"
-            scope={params.row.project ? 'Secret' : 'GlobalSecret'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleEditButtonClick(params.row.name, params.row.project)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-duplicate'}
-            icon={<ContentCopyIcon />}
-            label="Duplicate"
-            action="create"
-            scope={params.row.project ? 'Secret' : 'GlobalSecret'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleDuplicateButtonClick(params.row.name, params.row.project)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope={params.row.project ? 'Secret' : 'GlobalSecret'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleDeleteButtonClick(params.row.name, params.row.project)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+          const scope = row.project ? 'Secret' : 'GlobalSecret';
+          const project = row.project ? row.project : GlobalProject;
+
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Edit"
+              action="update"
+              scope={scope}
+              project={project}
+              onClick={handleEditButtonClick(row.name, row.project)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-duplicate'}
+              icon={<CopyIcon />}
+              label="Duplicate"
+              action="create"
+              scope={scope}
+              project={project}
+              onClick={handleDuplicateButtonClick(row.name, row.project)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope={scope}
+              project={project}
+              onClick={handleDeleteButtonClick(row.name, row.project)}
+            />,
+          ];
+        },
       },
     ],
     [handleCopyNameButtonClick, handleEditButtonClick, handleDuplicateButtonClick, handleDeleteButtonClick]
@@ -233,7 +242,7 @@ export function SecretList<T extends Secret>({
 
   return (
     <>
-      <Stack width="100%">
+      <div className="ps-SecretList">
         <SecretDataGrid
           columns={columns}
           rows={rows}
@@ -242,7 +251,7 @@ export function SecretList<T extends Secret>({
           isLoading={isLoading}
           onRowClick={handleRowClick}
         />
-      </Stack>
+      </div>
       {targetedSecret && (
         <>
           <SecretDrawer

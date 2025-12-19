@@ -12,10 +12,8 @@
 // limitations under the License.
 
 import { ReactElement, useState } from 'react';
-import { Stack, Box } from '@mui/material';
-import Cog from 'mdi-material-ui/Cog';
-import Puzzle from 'mdi-material-ui/Puzzle';
-import { JSONEditor } from '@perses-dev/components';
+import './ConfigView.css';
+import { JSONEditor, Tabs, useIcon } from '@perses-dev/components';
 import { MenuTab, MenuTabs } from '../../components/tabs';
 
 import AppBreadcrumbs from '../../components/breadcrumbs/AppBreadcrumbs';
@@ -25,63 +23,62 @@ import { PluginsList } from './PluginsList';
 
 interface TabPanelProps {
   children?: React.ReactNode;
-  index: number;
-  value: number;
+  index: string;
+  value: string;
 }
 
 function TabPanel(props: TabPanelProps): ReactElement | null {
   const { children, value, index, ...other } = props;
   return (
     <div role="tabpanel" hidden={value !== index} id={`tabpanel-${index}`} aria-labelledby={`tab-${index}`} {...other}>
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
+      {value === index && <div className="ps-ConfigView-tabContent">{children}</div>}
     </div>
   );
 }
 
 function ConfigView(): ReactElement {
+  const SettingsIcon = useIcon('Settings');
+  const PuzzleIcon = useIcon('Puzzle');
   const { config } = useConfigContext();
   const isMobileSize = useIsMobileSize();
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState('0');
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number): void => {
+  const handleTabChange = (newValue: string): void => {
     setTabIndex(newValue);
   };
 
   return (
-    <Stack sx={{ width: '100%', overflowX: 'hidden' }} m={isMobileSize ? 1 : 2} mt={1.5} gap={1}>
-      <AppBreadcrumbs rootPageName="Configuration" icon={<Cog fontSize="large" />} />
-      <Stack>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
-          <MenuTabs value={tabIndex} onChange={handleTabChange} aria-label="configuration tabs">
-            <MenuTab
-              iconPosition="start"
-              icon={<Cog />}
-              label="Server Configuration"
-              id="tab-0"
-              aria-controls="tabpanel-0"
-            />
-            <MenuTab
-              iconPosition="start"
-              icon={<Puzzle />}
-              label="Installed Plugins"
-              id="tab-1"
-              aria-controls="tabpanel-1"
-            />
-          </MenuTabs>
-        </Stack>
-        <TabPanel value={tabIndex} index={0}>
-          <JSONEditor value={config} readOnly />
-        </TabPanel>
-        <TabPanel value={tabIndex} index={1}>
-          <PluginsList />
-        </TabPanel>
-      </Stack>
-    </Stack>
+    <div className={`ps-ConfigView ${isMobileSize ? 'ps-ConfigView--mobile' : ''}`}>
+      <AppBreadcrumbs rootPageName="Configuration" icon={<SettingsIcon fontSize="large" />} />
+      <div className="ps-ConfigView-content">
+        <Tabs value={tabIndex} onValueChange={handleTabChange} aria-label="configuration tabs">
+          <div className="ps-ConfigView-header">
+            <MenuTabs aria-label="configuration tabs">
+              <MenuTab
+                icon={<SettingsIcon />}
+                label="Server Configuration"
+                id="tab-0"
+                value="0"
+                aria-controls="tabpanel-0"
+              />
+              <MenuTab
+                icon={<PuzzleIcon />}
+                label="Installed Plugins"
+                id="tab-1"
+                value="1"
+                aria-controls="tabpanel-1"
+              />
+            </MenuTabs>
+          </div>
+          <TabPanel value={tabIndex} index="0">
+            <JSONEditor value={config} readOnly />
+          </TabPanel>
+          <TabPanel value={tabIndex} index="1">
+            <PluginsList />
+          </TabPanel>
+        </Tabs>
+      </div>
+    </div>
   );
 }
 

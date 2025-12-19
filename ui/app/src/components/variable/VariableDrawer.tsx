@@ -70,7 +70,7 @@ export function VariableDrawer<T extends Variable>({
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={handleClickOut} data-testid="variable-editor">
+    <Drawer open={isOpen} onClose={handleClickOut} data-testid="variable-editor">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         <PluginRegistry pluginLoader={pluginLoader}>
           <ValidationProvider>

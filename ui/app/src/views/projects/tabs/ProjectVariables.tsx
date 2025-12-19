@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './ProjectVariables.css';
 import { getResourceExtendedDisplayName, Variable, VariableResource } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
 import { VariableList } from '../../../components/variable/VariableList';
@@ -99,7 +99,7 @@ export function ProjectVariables(props: ProjectVariablesProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-ProjectVariables" id={id}>
       <VariableList
         data={data ?? []}
         isLoading={isLoading}
@@ -122,6 +122,6 @@ export function ProjectVariables(props: ProjectVariablesProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

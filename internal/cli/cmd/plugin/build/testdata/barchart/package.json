@@ -13,8 +13,6 @@
     "@module-federation/enhanced": "^0.16.0"
   },
   "peerDependencies": {
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
     "@hookform/resolvers": "^3.2.0",
     "@perses-dev/components": "^0.50.1",
     "@perses-dev/core": "^0.50.1",

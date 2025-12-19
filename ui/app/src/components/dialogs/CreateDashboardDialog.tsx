@@ -11,18 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Dispatch, DispatchWithoutAction, ReactElement, useCallback, useState } from 'react';
-import { Button, CircularProgress, FormControlLabel, MenuItem, Stack, Switch, TextField } from '@mui/material';
-import { Dialog } from '@perses-dev/components';
-import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Dialog, Progress, Select, Switch, TextField } from '@perses-dev/components';
 import { DashboardSelector, EphemeralDashboardInfo, getResourceDisplayName, ProjectResource } from '@perses-dev/core';
+import { Dispatch, DispatchWithoutAction, ReactElement, useCallback, useState } from 'react';
+import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import {
   CreateDashboardValidationType,
   CreateEphemeralDashboardValidationType,
   useDashboardValidationSchema,
   useEphemeralDashboardValidationSchema,
 } from '../../validation';
+import './CreateDashboardDialog.css';
 
 interface CreateDashboardProps {
   open: boolean;
@@ -62,18 +62,14 @@ export const CreateDashboardDialog = (props: CreateDashboardProps): ReactElement
         {action} Dashboard{name && ': ' + name}
       </Dialog.Header>
       {isEphemeralDashboardEnabled && mode === 'duplicate' && (
-        <Dialog.Content sx={{ width: '100%' }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isTempCopyChecked}
-                onChange={(event) => {
-                  setTempCopyChecked(event.target.checked);
-                }}
-              />
-            }
-            label="Create as a temporary copy"
+        <Dialog.Content>
+          <Switch
+            checked={isTempCopyChecked}
+            onChange={(checked) => {
+              setTempCopyChecked(checked);
+            }}
           />
+          <span>Create as a temporary copy</span>
         </Dialog.Content>
       )}
       {isTempCopyChecked ? (
@@ -121,49 +117,35 @@ const DashboardDuplicationForm = (props: DuplicationFormProps): ReactElement => 
 
   if (!isDashboardSchemaValidationLoading)
     return (
-      <Stack
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          width: '100%',
-          overflow: 'hidden',
-        }}
-      >
-        <CircularProgress />
-      </Stack>
+      <div className="ps-CreateDashboardDialog-loading">
+        <Progress />
+      </div>
     );
+
+  const projectOptions = projects.map((option) => ({
+    value: option.metadata.name,
+    label: getResourceDisplayName(option),
+  }));
 
   return (
     <FormProvider {...dashboardForm}>
       <form onSubmit={dashboardForm.handleSubmit(handleProcessDashboardForm())}>
-        <Dialog.Content sx={{ width: '100%' }}>
-          <Stack gap={1}>
+        <Dialog.Content>
+          <div className="ps-CreateDashboardDialog-fields">
             {!hideProjectSelect && (
               <Controller
                 control={dashboardForm.control}
                 name="projectName"
                 render={({ field, fieldState }) => (
-                  <TextField
-                    select
-                    {...field}
+                  <Select
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={projectOptions}
                     required
-                    id="project"
                     label="Project name"
-                    type="text"
-                    fullWidth
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
-                  >
-                    {projects.map((option) => {
-                      return (
-                        <MenuItem key={option.metadata.name} value={option.metadata.name}>
-                          {getResourceDisplayName(option)}
-                        </MenuItem>
-                      );
-                    })}
-                  </TextField>
+                  />
                 )}
               />
             )}
@@ -174,23 +156,21 @@ const DashboardDuplicationForm = (props: DuplicationFormProps): ReactElement => 
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="name"
                   label="Dashboard Name"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
                 />
               )}
             />
-          </Stack>
+          </div>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button variant="contained" disabled={!dashboardForm.formState.isValid} type="submit">
+          <Button variant="solid" disabled={!dashboardForm.formState.isValid} type="submit">
             Add
           </Button>
-          <Button variant="outlined" color="secondary" onClick={handleClose}>
+          <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>
         </Dialog.Actions>
@@ -226,35 +206,30 @@ const EphemeralDashboardDuplicationForm = (props: DuplicationFormProps): ReactEl
     ephemeralDashboardForm.reset();
   };
 
+  const projectOptions = projects.map((option) => ({
+    value: option.metadata.name,
+    label: getResourceDisplayName(option),
+  }));
+
   return (
     <FormProvider {...ephemeralDashboardForm}>
       <form onSubmit={ephemeralDashboardForm.handleSubmit(processEphemeralDashboardForm)}>
-        <Dialog.Content sx={{ width: '100%' }}>
-          <Stack gap={1}>
+        <Dialog.Content>
+          <div className="ps-CreateDashboardDialog-fields">
             {!hideProjectSelect && (
               <Controller
                 control={ephemeralDashboardForm.control}
                 name="projectName"
                 render={({ field, fieldState }) => (
-                  <TextField
-                    select
-                    {...field}
+                  <Select
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={projectOptions}
                     required
-                    id="project"
                     label="Project name"
-                    type="text"
-                    fullWidth
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
-                  >
-                    {projects.map((option) => {
-                      return (
-                        <MenuItem key={option.metadata.name} value={option.metadata.name}>
-                          {getResourceDisplayName(option)}
-                        </MenuItem>
-                      );
-                    })}
-                  </TextField>
+                  />
                 )}
               />
             )}
@@ -265,11 +240,9 @@ const EphemeralDashboardDuplicationForm = (props: DuplicationFormProps): ReactEl
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="name"
                   label="Dashboard Name"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
                 />
@@ -282,23 +255,21 @@ const EphemeralDashboardDuplicationForm = (props: DuplicationFormProps): ReactEl
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="ttl"
                   label="Time to live (TTL)"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
-                  helperText={fieldState.error?.message ? fieldState.error.message : 'Duration string like 1w, 3d12h..'}
+                  helperText={fieldState.error?.message ?? 'Duration string like 1w, 3d12h..'}
                 />
               )}
             />
-          </Stack>
+          </div>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button variant="contained" disabled={!ephemeralDashboardForm.formState.isValid} type="submit">
+          <Button variant="solid" disabled={!ephemeralDashboardForm.formState.isValid} type="submit">
             Add
           </Button>
-          <Button variant="outlined" color="secondary" onClick={handleClose}>
+          <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>
         </Dialog.Actions>

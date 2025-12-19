@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './GlobalRoles.css';
 import { GlobalRoleResource, Role } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
 import { RoleList } from '../../../components/roles/RoleList';
@@ -92,7 +92,7 @@ export function GlobalRoles(props: GlobalRolesProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-GlobalRoles" id={id}>
       <RoleList
         data={data ?? []}
         isLoading={isLoading}
@@ -114,6 +114,6 @@ export function GlobalRoles(props: GlobalRolesProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

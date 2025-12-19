@@ -12,12 +12,9 @@
 // limitations under the License.
 
 import { Action, UserResource } from '@perses-dev/core';
-import { Stack } from '@mui/material';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
+import './UserList.css';
 import { ReactElement, useCallback, useMemo, useState } from 'react';
-import PencilIcon from 'mdi-material-ui/Pencil';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
+import { GridColDef, GridRowParams, useIcon } from '@perses-dev/components';
 import { DeleteResourceDialog } from '../dialogs';
 import { useIsReadonly } from '../../context/Config';
 import { GlobalProject } from '../../context/Authorization';
@@ -43,6 +40,9 @@ import { UserDrawer } from './UserDrawer';
  */
 export function UserList(props: ListPropertiesWithCallbacks<UserResource>): ReactElement {
   const { data, hideToolbar, onCreate, onUpdate, onDelete, initialState, isLoading } = props;
+  const EditIcon = useIcon('Edit');
+  const DeleteIcon = useIcon('Delete');
+  const CopyIcon = useIcon('Copy');
   const isReadonly = useIsReadonly();
 
   const findUser = useCallback(
@@ -120,7 +120,7 @@ export function UserList(props: ListPropertiesWithCallbacks<UserResource>): Reac
     [findUser]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       NAME_COL_DEF,
       {
@@ -146,42 +146,46 @@ export function UserList(props: ListPropertiesWithCallbacks<UserResource>): Reac
         type: 'actions',
         flex: 0.5,
         minWidth: 150,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Edit"
-            action="update"
-            scope="User"
-            project={GlobalProject}
-            onClick={handleEditButtonClick(params.row.name)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-duplicate'}
-            icon={<ContentCopyIcon />}
-            label="Duplicate"
-            action="create"
-            scope="User"
-            project={GlobalProject}
-            onClick={handleDuplicateButtonClick(params.row.name)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope="User"
-            project={GlobalProject}
-            onClick={handleDeleteButtonClick(params.row.name)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Edit"
+              action="update"
+              scope="User"
+              project={GlobalProject}
+              onClick={handleEditButtonClick(row.name)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-duplicate'}
+              icon={<CopyIcon />}
+              label="Duplicate"
+              action="create"
+              scope="User"
+              project={GlobalProject}
+              onClick={handleDuplicateButtonClick(row.name)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope="User"
+              project={GlobalProject}
+              onClick={handleDeleteButtonClick(row.name)}
+            />,
+          ];
+        },
       },
     ],
     [handleEditButtonClick, handleDuplicateButtonClick, handleDeleteButtonClick]
   );
 
   return (
-    <Stack width="100%">
+    <div className="ps-UserList">
       <UserDataGrid
         rows={rows}
         columns={columns}
@@ -210,6 +214,6 @@ export function UserList(props: ListPropertiesWithCallbacks<UserResource>): Reac
           />
         </>
       )}
-    </Stack>
+    </div>
   );
 }

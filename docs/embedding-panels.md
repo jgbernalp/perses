@@ -4,7 +4,7 @@ This little documentation aims to provide you the minimum code needed to have a 
 application.
 
 !!! info
-    We are working actively on reducing this amount of required dependencies/providers working on some default values or opt-in/opt-out mechanisms.
+We are working actively on reducing this amount of required dependencies/providers working on some default values or opt-in/opt-out mechanisms.
 
 ## Getting started (npm example)
 
@@ -18,8 +18,7 @@ npm i --save @perses-dev/components \
   @perses-dev/plugin-system @perses-dev/timeseries-chart-plugin \
   @perses-dev/prometheus-plugin @perses-dev/dashboards \
   @tanstack/react-query \
-  @mui/material \
-  @emotion/styled @hookform/resolvers \
+  @hookform/resolvers \
   react@18 react-dom@18
 ```
 
@@ -106,8 +105,11 @@ export const fakeDashboard = {
 } as DashboardResource;
 
 function App() {
-  const [timeRange, setTimeRange] = React.useState<TimeRangeValue>({ pastDuration: "30m" });
-  const [refreshInterval, setRefreshInterval] = React.useState<DurationString>("0s");
+  const [timeRange, setTimeRange] = React.useState<TimeRangeValue>({
+    pastDuration: "30m",
+  });
+  const [refreshInterval, setRefreshInterval] =
+    React.useState<DurationString>("0s");
 
   const muiTheme = getTheme("light");
   const chartsTheme = generateChartsTheme(muiTheme, {});
@@ -146,7 +148,12 @@ function App() {
             }}
           >
             <QueryClientProvider client={queryClient}>
-              <TimeRangeProvider timeRange={timeRange} refreshInterval={refreshInterval} setTimeRange={setTimeRange} setRefreshInterval={setRefreshInterval}>
+              <TimeRangeProvider
+                timeRange={timeRange}
+                refreshInterval={refreshInterval}
+                setTimeRange={setTimeRange}
+                setRefreshInterval={setRefreshInterval}
+              >
                 <VariableProvider>
                   <DatasourceStoreProvider
                     dashboardResource={fakeDashboard}

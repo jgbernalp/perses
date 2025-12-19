@@ -11,7 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Avatar, Box, Divider, Typography, useTheme } from '@mui/material';
+import { Avatar, Separator } from '@perses-dev/components';
+import './ProfileView.css';
 import { lazy, ReactElement, Suspense, useState } from 'react';
 import { useIsMobileSize } from '../../utils/browser-size';
 import { useAuthorizationContext } from '../../context/Authorization';
@@ -25,15 +26,9 @@ export enum ProfileSections {
 const ProfilePermissions = lazy(() => import('./ProfilePermissions'));
 
 const ProfileView = (): ReactElement => {
-  const theme = useTheme();
   const isMobileSize = useIsMobileSize();
   const [activeSection, setActiveSection] = useState<ProfileSections>(ProfileSections.PERMISSIONS);
   const { username } = useAuthorizationContext();
-
-  const borderTheme = {
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: theme.shape.borderRadius,
-  };
 
   const renderActiveSection = (): ReactElement | null => {
     switch (activeSection) {
@@ -45,63 +40,27 @@ const ProfileView = (): ReactElement => {
   };
 
   return (
-    <Box
+    <div
       data-testid="profile-view-container"
-      sx={{
-        display: 'flex',
-        flexDirection: isMobileSize ? 'column' : 'row',
-        padding: (theme) => theme.spacing(1, 2),
-        width: '100%',
-        gap: 2,
-      }}
+      className={`ps-ProfileView ${isMobileSize ? 'ps-ProfileView--mobile' : ''}`}
     >
-      <Box
-        component="nav"
-        aria-label="Profile navigation"
-        data-testid="profile-sidebar"
-        sx={{
-          ...borderTheme,
-          display: 'flex',
-          flexDirection: 'column',
-          width: isMobileSize ? '100%' : '20%',
-          height: 'fit-content',
-        }}
-      >
-        <Box
-          sx={{
-            padding: (theme) => theme.spacing(1, 1),
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            gap: 1,
-          }}
-        >
+      <nav aria-label="Profile navigation" data-testid="profile-sidebar" className="ps-ProfileView-sidebar">
+        <div className="ps-ProfileView-userInfo">
           {/* TODO: Shouldn't we later add the user profile image? */}
           <Avatar aria-label={`User profile image for ${username}`} />
-          <Typography
-            variant="h1"
-            sx={{
-              textAlign: 'center',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {username}
-          </Typography>
-        </Box>
-        <Divider />
+          <h1 className="ps-ProfileView-username">{username}</h1>
+        </div>
+        <Separator className="ps-ProfileView-divider" />
         <ProfileSettings selectedView={activeSection} setSelectedView={setActiveSection} />
-      </Box>
-      <Box
+      </nav>
+      <div
         aria-live="polite"
         data-testid="profile-section-container"
-        sx={{ width: isMobileSize ? '100%' : '80%', ...borderTheme }}
+        className={`ps-ProfileView-section ${isMobileSize ? 'ps-ProfileView-section--mobile' : ''}`}
       >
         <Suspense>{renderActiveSection()}</Suspense>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

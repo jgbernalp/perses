@@ -15,12 +15,17 @@ import { Action, UserEditorSchemaType, UserResource, userSchema } from '@perses-
 import { getSubmitText, getTitleAction } from '@perses-dev/plugin-system';
 import React, { Fragment, ReactElement, useMemo, useState } from 'react';
 import { Control, Controller, FormProvider, SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
-import { Alert, Box, Divider, FormControl, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { DiscardChangesConfirmationDialog, FormActions } from '@perses-dev/components';
+import {
+  Alert,
+  DiscardChangesConfirmationDialog,
+  FormActions,
+  IconButton,
+  Separator,
+  FormTextField,
+  useIcon,
+} from '@perses-dev/components';
+import './UserEditorForm.css';
 import { zodResolver } from '@hookform/resolvers/zod';
-import MinusIcon from 'mdi-material-ui/Minus';
-import PlusIcon from 'mdi-material-ui/Plus';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
 import { useIsExternalProviderEnabled, useIsNativeProviderEnabled } from '../../context/Config';
 import { FormEditorProps } from '../form-drawers';
 
@@ -36,6 +41,9 @@ export function UserEditorForm({
   onClose,
   onDelete,
 }: UserEditorFormProps): ReactElement {
+  const AddIcon = useIcon('Plus');
+  const MinusIcon = useIcon('Minus');
+  const DeleteIcon = useIcon('Delete');
   const externalProvidersEnabled = useIsExternalProviderEnabled();
   const nativeProviderEnabled = useIsNativeProviderEnabled();
 
@@ -83,15 +91,8 @@ export function UserEditorForm({
 
   return (
     <FormProvider {...form}>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: (theme) => theme.spacing(1, 2),
-          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Typography variant="h2">{titleAction} User</Typography>
+      <div className="ps-UserEditorForm-header">
+        <h2>{titleAction} User</h2>
         <FormActions
           action={action}
           submitText={submitText}
@@ -102,14 +103,14 @@ export function UserEditorForm({
           onDelete={onDelete}
           onCancel={handleCancel}
         />
-      </Box>
-      <Stack padding={2} gap={2} sx={{ overflowY: 'scroll' }}>
-        <Stack gap={2} direction="row">
+      </div>
+      <div className="ps-UserEditorForm-content">
+        <div className="ps-UserEditorForm-row">
           <Controller
             control={form.control}
             name="metadata.name"
             render={({ field, fieldState }) => (
-              <TextField
+              <FormTextField
                 {...field}
                 required
                 fullWidth
@@ -121,88 +122,73 @@ export function UserEditorForm({
                 }}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                onChange={(event) => {
-                  field.onChange(event);
-                }}
               />
             )}
           />
-        </Stack>
-        <Divider />
-        <Stack gap={1}>
-          <Typography variant="h1" mb={2}>
-            General
-          </Typography>
-          <FormControl>
-            <Stack gap={2} direction="row">
-              <Controller
-                control={form.control}
-                name="spec.firstName"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="First Name"
-                    InputLabelProps={{ shrink: action === 'read' ? true : undefined }}
-                    InputProps={{
-                      readOnly: action === 'read',
-                    }}
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                    onChange={(event) => {
-                      field.onChange(event);
-                    }}
-                  />
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="spec.lastName"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Last Name"
-                    InputLabelProps={{ shrink: action === 'read' ? true : undefined }}
-                    InputProps={{
-                      readOnly: action === 'read',
-                    }}
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                    onChange={(event) => {
-                      field.onChange(event);
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-          </FormControl>
-        </Stack>
-        <Divider />
-        <Stack gap={1}>
-          <Typography variant="h1" mb={2}>
-            Native Provider
-          </Typography>
+        </div>
+        <Separator className="ps-UserEditorForm-divider" />
+        <div className="ps-UserEditorForm-section">
+          <h1 className="ps-UserEditorForm-sectionTitle">General</h1>
+          <div className="ps-UserEditorForm-row">
+            <Controller
+              control={form.control}
+              name="spec.firstName"
+              render={({ field, fieldState }) => (
+                <FormTextField
+                  {...field}
+                  fullWidth
+                  label="First Name"
+                  InputLabelProps={{ shrink: action === 'read' ? true : undefined }}
+                  InputProps={{
+                    readOnly: action === 'read',
+                  }}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="spec.lastName"
+              render={({ field, fieldState }) => (
+                <FormTextField
+                  {...field}
+                  fullWidth
+                  label="Last Name"
+                  InputLabelProps={{ shrink: action === 'read' ? true : undefined }}
+                  InputProps={{
+                    readOnly: action === 'read',
+                  }}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
+            />
+          </div>
+        </div>
+        <Separator className="ps-UserEditorForm-divider" />
+        <div className="ps-UserEditorForm-section">
+          <h1 className="ps-UserEditorForm-sectionTitle">Native Provider</h1>
           {spec.nativeProvider?.password === undefined ? (
             <IconButton
+              aria-label="Add native provider"
               disabled={isReadonly || action === 'read'}
               style={{ width: 'fit-content', height: 'fit-content' }}
               onClick={() => form.setValue('spec.nativeProvider', { password: '' })}
-              title="Add native provider"
             >
-              <PlusIcon />
+              <AddIcon />
             </IconButton>
           ) : (
-            <Stack gap={2}>
+            <div className="ps-UserEditorForm-providerContent">
               {!nativeProviderEnabled && (
                 <Alert severity="warning">Native provider is currently disabled in the config!</Alert>
               )}
-              <Stack direction="row" gap={1} alignItems="end">
+              <div className="ps-UserEditorForm-providerRow">
                 <Controller
                   control={form.control}
                   name="spec.nativeProvider.password"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Password"
@@ -212,65 +198,58 @@ export function UserEditorForm({
                       }}
                       error={!!fieldState.error}
                       helperText={fieldState.error?.message}
-                      onChange={(event) => {
-                        field.onChange(event);
-                      }}
                     />
                   )}
                 />
                 <IconButton
+                  aria-label="Remove native provider"
                   disabled={isReadonly || action === 'read'}
                   style={{ width: 'fit-content', height: 'fit-content' }}
                   onClick={() => form.setValue('spec.nativeProvider', { password: undefined })}
-                  title="Remove native provider"
                 >
                   <DeleteIcon />
                 </IconButton>
-              </Stack>
-            </Stack>
+              </div>
+            </div>
           )}
-        </Stack>
-        <Divider />
-        <Stack gap={1}>
-          <Typography variant="h1" mb={2}>
-            OAuth & OIDC Providers
-          </Typography>
+        </div>
+        <Separator className="ps-UserEditorForm-divider" />
+        <div className="ps-UserEditorForm-section">
+          <h1 className="ps-UserEditorForm-sectionTitle">OAuth & OIDC Providers</h1>
           {!externalProvidersEnabled && (
             <Alert severity="warning">No OAuth or OIDC providers are currently enabled in the config!</Alert>
           )}
-          <Stack gap={2}>
+          <div className="ps-UserEditorForm-providerContent">
             {fields && fields.length > 0 ? (
               fields.map((field, index) => (
                 <Fragment key={field.id}>
-                  <Stack key={field.id} direction="row" gap={1} alignItems="end">
+                  <div key={field.id} className="ps-UserEditorForm-providerRow">
                     <OAuthProvider control={form.control} index={index} action={action} />
                     <IconButton
+                      aria-label="Remove provider"
                       disabled={isReadonly || action === 'read'}
                       style={{ width: 'fit-content', height: 'fit-content' }}
                       onClick={() => remove(index)}
-                      title="Remove provider"
                     >
                       <MinusIcon />
                     </IconButton>
-                  </Stack>
+                  </div>
                 </Fragment>
               ))
             ) : (
-              <Typography variant="subtitle1" mb={2} fontStyle="italic">
-                No OAuth or OIDC provider defined
-              </Typography>
+              <span className="ps-UserEditorForm-emptyText">No OAuth or OIDC provider defined</span>
             )}
             <IconButton
+              aria-label="Add OIDC or OAuth provider"
               disabled={isReadonly || action === 'read'}
               style={{ width: 'fit-content', height: 'fit-content' }}
               onClick={() => append({ issuer: '', email: '', subject: '' })}
-              title="Add OIDC or OAuth provider"
             >
-              <PlusIcon />
+              <AddIcon />
             </IconButton>
-          </Stack>
-        </Stack>
-      </Stack>
+          </div>
+        </div>
+      </div>
       <DiscardChangesConfirmationDialog
         description="Are you sure you want to discard these changes? Changes cannot be recovered."
         isOpen={isDiscardDialogOpened}
@@ -296,17 +275,15 @@ function OAuthProvider({
   action: Action;
 }): ReactElement {
   return (
-    <Stack direction="row" width="100%" gap={2}>
-      <Stack gap={1} width="100%">
-        <Typography variant="h3" textTransform="capitalize">
-          Issuer
-        </Typography>
+    <div className="ps-UserEditorForm-oauthControl">
+      <div className="ps-UserEditorForm-oauthColumn">
+        <h3 className="ps-UserEditorForm-columnTitle">Issuer</h3>
 
         <Controller
           control={control}
           name={`spec.oauthProviders.${index}.issuer`}
           render={({ field, fieldState }) => (
-            <TextField
+            <FormTextField
               {...field}
               fullWidth
               label="Issuer"
@@ -316,23 +293,18 @@ function OAuthProvider({
               }}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              onChange={(event) => {
-                field.onChange(event);
-              }}
             />
           )}
         />
-      </Stack>
-      <Stack gap={1} width="100%">
-        <Typography variant="h3" textTransform="capitalize">
-          Email
-        </Typography>
+      </div>
+      <div className="ps-UserEditorForm-oauthColumn">
+        <h3 className="ps-UserEditorForm-columnTitle">Email</h3>
 
         <Controller
           control={control}
           name={`spec.oauthProviders.${index}.email`}
           render={({ field, fieldState }) => (
-            <TextField
+            <FormTextField
               {...field}
               fullWidth
               label="Email"
@@ -342,23 +314,18 @@ function OAuthProvider({
               }}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              onChange={(event) => {
-                field.onChange(event);
-              }}
             />
           )}
         />
-      </Stack>
-      <Stack gap={1} width="100%">
-        <Typography variant="h3" textTransform="capitalize">
-          Subject
-        </Typography>
+      </div>
+      <div className="ps-UserEditorForm-oauthColumn">
+        <h3 className="ps-UserEditorForm-columnTitle">Subject</h3>
 
         <Controller
           control={control}
           name={`spec.oauthProviders.${index}.subject`}
           render={({ field, fieldState }) => (
-            <TextField
+            <FormTextField
               {...field}
               fullWidth
               label="Subject"
@@ -368,13 +335,10 @@ function OAuthProvider({
               }}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              onChange={(event) => {
-                field.onChange(event);
-              }}
             />
           )}
         />
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 }

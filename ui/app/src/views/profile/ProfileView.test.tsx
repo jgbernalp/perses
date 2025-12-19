@@ -13,7 +13,6 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ProfileView from './ProfileView';
 
 jest.mock('../../context/Authorization', () => ({
@@ -42,12 +41,7 @@ jest.mock('../../model/user-client', () => ({
 }));
 
 beforeEach(() => {
-  const theme = createTheme();
-  render(
-    <ThemeProvider theme={theme}>
-      <ProfileView />
-    </ThemeProvider>
-  );
+  render(<ProfileView />);
 });
 
 describe('ProfileView', () => {

@@ -11,23 +11,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Stack } from '@mui/material';
-import ShieldStar from 'mdi-material-ui/ShieldStar';
 import { useParams } from 'react-router-dom';
 import { ReactElement } from 'react';
+import { useIcon } from '@perses-dev/components';
 import AppBreadcrumbs from '../../components/breadcrumbs/AppBreadcrumbs';
 import { useIsMobileSize } from '../../utils/browser-size';
 import { AdminTabs } from './AdminTabs';
+import './AdminView.css';
 
 function AdminView(): ReactElement {
+  const ShieldStarIcon = useIcon('ShieldStar');
   const { tab } = useParams();
   const isMobileSize = useIsMobileSize();
 
   return (
-    <Stack sx={{ width: '100%', overflowX: 'hidden' }} m={isMobileSize ? 1 : 2} mt={1.5} gap={1}>
-      <AppBreadcrumbs rootPageName="Administration" icon={<ShieldStar fontSize="large" />} />
+    <div className={`ps-AdminView ${isMobileSize ? 'ps-AdminView--mobile' : ''}`}>
+      <AppBreadcrumbs rootPageName="Administration" icon={<ShieldStarIcon fontSize="large" />} />
       <AdminTabs initialTab={tab} />
-    </Stack>
+    </div>
   );
 }
 

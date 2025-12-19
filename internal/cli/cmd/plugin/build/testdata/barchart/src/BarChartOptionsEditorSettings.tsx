@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button } from '@mui/material';
+import { Button } from "@perses-dev/components";
 import {
   FormatControls,
   FormatControlsProps,
@@ -24,24 +24,36 @@ import {
   SortOption,
   SortSelector,
   SortSelectorProps,
-} from '@perses-dev/components';
-import { CalculationType, DEFAULT_CALCULATION, FormatOptions, isPercentUnit } from '@perses-dev/core';
-import { CalculationSelector, CalculationSelectorProps } from '@perses-dev/plugin-system';
-import { produce } from 'immer';
-import merge from 'lodash/merge';
-import { MouseEventHandler, ReactElement } from 'react';
+} from "@perses-dev/components";
+import {
+  CalculationType,
+  DEFAULT_CALCULATION,
+  FormatOptions,
+  isPercentUnit,
+} from "@perses-dev/core";
+import {
+  CalculationSelector,
+  CalculationSelectorProps,
+} from "@perses-dev/plugin-system";
+import { produce } from "immer";
+import merge from "lodash/merge";
+import { MouseEventHandler, ReactElement } from "react";
 import {
   BarChartOptions,
   BarChartOptionsEditorProps,
   DEFAULT_FORMAT,
   DEFAULT_MODE,
   DEFAULT_SORT,
-} from './bar-chart-model';
+} from "./bar-chart-model";
 
-export function BarChartOptionsEditorSettings(props: BarChartOptionsEditorProps): ReactElement {
+export function BarChartOptionsEditorSettings(
+  props: BarChartOptionsEditorProps
+): ReactElement {
   const { onChange, value } = props;
 
-  const handleCalculationChange: CalculationSelectorProps['onChange'] = (newCalculation: CalculationType) => {
+  const handleCalculationChange: CalculationSelectorProps["onChange"] = (
+    newCalculation: CalculationType
+  ) => {
     onChange(
       produce(value, (draft: BarChartOptions) => {
         draft.calculation = newCalculation;
@@ -49,7 +61,9 @@ export function BarChartOptionsEditorSettings(props: BarChartOptionsEditorProps)
     );
   };
 
-  const handleUnitChange: FormatControlsProps['onChange'] = (newFormat: FormatOptions) => {
+  const handleUnitChange: FormatControlsProps["onChange"] = (
+    newFormat: FormatOptions
+  ) => {
     onChange(
       produce(value, (draft: BarChartOptions) => {
         draft.format = newFormat;
@@ -57,7 +71,9 @@ export function BarChartOptionsEditorSettings(props: BarChartOptionsEditorProps)
     );
   };
 
-  const handleSortChange: SortSelectorProps['onChange'] = (newSort: SortOption) => {
+  const handleSortChange: SortSelectorProps["onChange"] = (
+    newSort: SortOption
+  ) => {
     onChange(
       produce(value, (draft: BarChartOptions) => {
         draft.sort = newSort;
@@ -65,7 +81,9 @@ export function BarChartOptionsEditorSettings(props: BarChartOptionsEditorProps)
     );
   };
 
-  const handleModeChange: ModeSelectorProps['onChange'] = (newMode: ModeOption) => {
+  const handleModeChange: ModeSelectorProps["onChange"] = (
+    newMode: ModeOption
+  ) => {
     onChange(
       produce(value, (draft: BarChartOptions) => {
         draft.mode = newMode;
@@ -91,15 +109,30 @@ export function BarChartOptionsEditorSettings(props: BarChartOptionsEditorProps)
     <OptionsEditorGrid>
       <OptionsEditorColumn>
         <OptionsEditorGroup title="Misc">
-          <FormatControls value={format} onChange={handleUnitChange} disabled={value.mode === 'percentage'} />
-          <CalculationSelector value={value.calculation} onChange={handleCalculationChange} />
+          <FormatControls
+            value={format}
+            onChange={handleUnitChange}
+            disabled={value.mode === "percentage"}
+          />
+          <CalculationSelector
+            value={value.calculation}
+            onChange={handleCalculationChange}
+          />
           <SortSelector value={value.sort} onChange={handleSortChange} />
-          <ModeSelector value={value.mode} onChange={handleModeChange} disablePercentageMode={isPercentUnit(format)} />
+          <ModeSelector
+            value={value.mode}
+            onChange={handleModeChange}
+            disablePercentageMode={isPercentUnit(format)}
+          />
         </OptionsEditorGroup>
       </OptionsEditorColumn>
       <OptionsEditorColumn>
         <OptionsEditorGroup title="Reset Settings">
-          <Button variant="outlined" color="secondary" onClick={handleResetSettings}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleResetSettings}
+          >
             Reset To Defaults
           </Button>
         </OptionsEditorGroup>

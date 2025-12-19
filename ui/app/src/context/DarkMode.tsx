@@ -11,8 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { createContext, ReactElement, useContext, useMemo } from 'react';
-import { CssBaseline, ThemeProvider, useMediaQuery } from '@mui/material';
+import React, { createContext, ReactElement, useContext, useMemo, useEffect } from 'react';
 import {
   ChartsProvider,
   generateChartsTheme,
@@ -38,9 +37,15 @@ export const DarkModeContext = createContext<DarkModeContext | undefined>(undefi
  * Acts as theme provider for MUI and allows switching to dark mode.
  */
 export function DarkModeContextProvider(props: { children: React.ReactNode }): ReactElement {
-  const browserPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const browserPrefersDarkMode =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   const [isDarkModeEnabled, setDarkMode] = useLocalStorage<boolean>(DARK_MODE_PREFERENCE_KEY, browserPrefersDarkMode);
+
+  // Set the data-theme attribute on the document element for CSS-based theming
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDarkModeEnabled ? 'dark' : 'light');
+  }, [isDarkModeEnabled]);
 
   // store the dark mode preference in local storage
   const darkModeContext: DarkModeContext = useMemo(
@@ -57,12 +62,9 @@ export function DarkModeContextProvider(props: { children: React.ReactNode }): R
   }, [theme]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <ChartsProvider chartsTheme={chartsTheme} enablePinning={true}>
-        <DarkModeContext.Provider value={darkModeContext}>{props.children}</DarkModeContext.Provider>
-      </ChartsProvider>
-    </ThemeProvider>
+    <ChartsProvider chartsTheme={chartsTheme} enablePinning={true}>
+      <DarkModeContext.Provider value={darkModeContext}>{props.children}</DarkModeContext.Provider>
+    </ChartsProvider>
   );
 }
 

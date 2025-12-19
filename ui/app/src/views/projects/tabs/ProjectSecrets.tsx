@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './ProjectSecrets.css';
 import { Secret, SecretResource } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
 import { SecretList } from '../../../components/secrets/SecretList';
@@ -93,7 +93,7 @@ export function ProjectSecrets(props: ProjectSecretsProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-ProjectSecrets" id={id}>
       <SecretList
         data={data ?? []}
         isLoading={isLoading}
@@ -116,6 +116,6 @@ export function ProjectSecrets(props: ProjectSecretsProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

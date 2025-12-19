@@ -11,12 +11,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useMediaQuery, useTheme } from '@mui/material';
+import { useEffect, useState } from 'react';
+
+// Breakpoint values (matching common breakpoints)
+const BREAKPOINTS = {
+  sm: 600,
+  md: 900,
+  lg: 1200,
+  xl: 1536,
+};
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia(query).matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia(query);
+    const handler = (event: MediaQueryListEvent): void => setMatches(event.matches);
+
+    // Set initial value
+    setMatches(mediaQuery.matches);
+
+    // Add listener
+    mediaQuery.addEventListener('change', handler);
+
+    return (): void => mediaQuery.removeEventListener('change', handler);
+  }, [query]);
+
+  return matches;
+}
 
 export function useIsLaptopSize(): boolean {
-  return useMediaQuery(useTheme().breakpoints.up('md'));
+  return useMediaQuery(`(min-width: ${BREAKPOINTS.md}px)`);
 }
 
 export function useIsMobileSize(): boolean {
-  return useMediaQuery(useTheme().breakpoints.down('md'));
+  return useMediaQuery(`(max-width: ${BREAKPOINTS.md - 1}px)`);
 }

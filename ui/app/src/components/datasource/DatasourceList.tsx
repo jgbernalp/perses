@@ -12,12 +12,9 @@
 // limitations under the License.
 
 import { getResourceDisplayName, getMetadataProject, Datasource, Action } from '@perses-dev/core';
-import { Stack } from '@mui/material';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
+import './DatasourceList.css';
 import React, { ReactElement, useCallback, useMemo, useState } from 'react';
-import PencilIcon from 'mdi-material-ui/Pencil';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
+import { GridColDef, GridRowParams, useIcon } from '@perses-dev/components';
 import { useIsReadonly } from '../../context/Config';
 import { GlobalProject } from '../../context/Authorization';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
@@ -45,6 +42,9 @@ import { DatasourceDrawer } from './DatasourceDrawer';
  */
 export function DatasourceList<T extends Datasource>(props: ListPropertiesWithCallbacks<T>): ReactElement {
   const { data, hideToolbar, onCreate, onUpdate, onDelete, initialState, isLoading } = props;
+  const EditIcon = useIcon('Edit');
+  const DeleteIcon = useIcon('Delete');
+  const CopyIcon = useIcon('Copy');
   const isReadonly = useIsReadonly();
 
   const findDatasource = useCallback(
@@ -128,7 +128,7 @@ export function DatasourceList<T extends Datasource>(props: ListPropertiesWithCa
     [findDatasource]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       {
         field: 'default',
@@ -143,7 +143,10 @@ export function DatasourceList<T extends Datasource>(props: ListPropertiesWithCa
         headerName: 'Name',
         type: 'string',
         flex: 2,
-        renderCell: (params): ReactElement => <span style={{ fontFamily: 'monospace' }}>{params.value}</span>,
+        renderCell: (params): ReactElement => {
+          const value = String(params.value ?? '');
+          return <span style={{ fontFamily: 'monospace' }}>{value}</span>;
+        },
       },
       VERSION_COL_DEF,
       DESCRIPTION_COL_DEF,
@@ -156,42 +159,48 @@ export function DatasourceList<T extends Datasource>(props: ListPropertiesWithCa
         type: 'actions',
         flex: 0.5,
         minWidth: 150,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Edit"
-            action="update"
-            scope={params.row.project ? 'Datasource' : 'GlobalDatasource'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleEditButtonClick(params.row.name, params.row.project)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-duplicate'}
-            icon={<ContentCopyIcon />}
-            label="Duplicate"
-            action="create"
-            scope={params.row.project ? 'Datasource' : 'GlobalDatasource'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleDuplicateButtonClick(params.row.name, params.row.project)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope={params.row.project ? 'Datasource' : 'GlobalDatasource'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleDeleteButtonClick(params.row.name, params.row.project)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+          const scope = row.project ? 'Datasource' : 'GlobalDatasource';
+          const project = row.project ? row.project : GlobalProject;
+
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Edit"
+              action="update"
+              scope={scope}
+              project={project}
+              onClick={handleEditButtonClick(row.name, row.project)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-duplicate'}
+              icon={<CopyIcon />}
+              label="Duplicate"
+              action="create"
+              scope={scope}
+              project={project}
+              onClick={handleDuplicateButtonClick(row.name, row.project)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope={scope}
+              project={project}
+              onClick={handleDeleteButtonClick(row.name, row.project)}
+            />,
+          ];
+        },
       },
     ],
     [handleEditButtonClick, handleDuplicateButtonClick, handleDeleteButtonClick]
   );
 
   return (
-    <Stack width="100%">
+    <div className="ps-DatasourceList">
       <DatasourceDataGrid
         rows={rows}
         columns={columns}
@@ -220,6 +229,6 @@ export function DatasourceList<T extends Datasource>(props: ListPropertiesWithCa
           />
         </>
       )}
-    </Stack>
+    </div>
   );
 }

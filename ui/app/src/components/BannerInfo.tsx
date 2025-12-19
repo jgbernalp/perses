@@ -11,10 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Alert } from '@mui/material';
 import { ReactElement, useMemo } from 'react';
-import { useLocalStorage } from '@perses-dev/components';
+import { useLocalStorage, IconButton, useIcon } from '@perses-dev/components';
 import { useBanner } from '../context/Config';
+import './BannerInfo.css';
 
 /*
  * Banner displays if there is information regarding outages
@@ -24,6 +24,7 @@ import { useBanner } from '../context/Config';
 const DISCARDED_BANNER = 'PERSES_BANNER_DISCARDED';
 
 export function BannerInfo(): ReactElement | null {
+  const CloseIcon = useIcon('Close');
   const banner = useBanner();
   const [discardedBanner, setDiscardedBanner] = useLocalStorage<string>(DISCARDED_BANNER, '');
 
@@ -34,18 +35,17 @@ export function BannerInfo(): ReactElement | null {
   }
 
   return (
-    <Box>
-      <Alert
-        sx={{
-          '& .MuiAlert-message': {
-            '& h1': { margin: (theme) => theme.spacing(0.5) },
-          },
-        }}
-        severity={banner.severity}
-        onClose={() => setDiscardedBanner(banner.message)}
+    <div className="ps-BannerInfo" data-severity={banner.severity}>
+      <span className="ps-BannerInfo-message" dangerouslySetInnerHTML={{ __html: banner.message }}></span>
+      <IconButton
+        className="ps-BannerInfo-close"
+        size="sm"
+        variant="ghost"
+        aria-label="Close banner"
+        onClick={() => setDiscardedBanner(banner.message)}
       >
-        <span dangerouslySetInnerHTML={{ __html: banner.message }}></span>
-      </Alert>
-    </Box>
+        <CloseIcon />
+      </IconButton>
+    </div>
   );
 }

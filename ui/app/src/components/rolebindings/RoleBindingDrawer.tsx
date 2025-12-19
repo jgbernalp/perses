@@ -43,7 +43,7 @@ export function RoleBindingDrawer<T extends RoleBinding>({
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={handleClickOut} data-testid="roleBinding-editor">
+    <Drawer open={isOpen} onClose={handleClickOut} data-testid="roleBinding-editor">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         {isOpen && (
           <RoleBindingEditorForm

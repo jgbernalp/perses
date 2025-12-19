@@ -12,8 +12,8 @@
 // limitations under the License.
 
 import { PluginModuleResource } from '@perses-dev/plugin-system';
-import { DialogContent, DialogTitle, Divider, List, ListItem, ListItemText, Stack, Typography } from '@mui/material';
-import { Dialog } from '@perses-dev/components';
+import { Dialog, Separator, List, ListItem, ListItemText } from '@perses-dev/components';
+import './PluginDetailsDialog.css';
 import { Fragment, ReactElement } from 'react';
 
 interface PluginDetailsDialogProps {
@@ -27,28 +27,25 @@ export function PluginDetailsDialog({ selectedPluginModule, onClose }: PluginDet
   }
 
   return (
-    <Dialog open={!!selectedPluginModule} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Plugins for {selectedPluginModule.metadata.name} Module</DialogTitle>
-      <DialogContent dividers sx={{ maxHeight: 400 }}>
+    <Dialog open={!!selectedPluginModule} onClose={onClose}>
+      <Dialog.Header onClose={onClose}>Plugins for {selectedPluginModule.metadata.name} Module</Dialog.Header>
+      <Dialog.Content className="ps-PluginDetailsDialog-content">
         <List>
-          <Stack divider={<Divider flexItem orientation="horizontal" />}>
+          <div className="ps-PluginDetailsDialog-list">
             {selectedPluginModule.spec.plugins.map((pluginItem, index) => (
               <Fragment key={index}>
+                {index > 0 && <Separator />}
                 <ListItem>
                   <ListItemText
-                    primary={
-                      <Typography>
-                        <strong>{pluginItem.spec.name}</strong>
-                      </Typography>
-                    }
-                    secondary={<Typography color="text.secondary">Kind: {pluginItem.kind}</Typography>}
+                    primary={<strong>{pluginItem.spec.name}</strong>}
+                    secondary={<span className="ps-PluginDetailsDialog-kind">Kind: {pluginItem.kind}</span>}
                   />
                 </ListItem>
               </Fragment>
             ))}
-          </Stack>
+          </div>
         </List>
-      </DialogContent>
+      </Dialog.Content>
     </Dialog>
   );
 }

@@ -15,8 +15,9 @@
 /* eslint @typescript-eslint/explicit-function-return-type: 0 */
 /* typescript-eslint/explicit-module-boundary-types: 0 */
 
-import { alpha, Divider, Stack, Theme, useTheme } from '@mui/material';
-import { ReactElement, ReactNode } from 'react';
+import { Separator, useIcon } from '@perses-dev/components';
+import './SignWrapper.css';
+import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import {
   AmazonLoginButton,
   AppleLoginButton,
@@ -39,9 +40,6 @@ import {
   YahooLoginButton,
   ZaloLoginButton,
 } from 'react-social-login-buttons';
-import * as React from 'react';
-import Gitlab from 'mdi-material-ui/Gitlab';
-import Bitbucket from 'mdi-material-ui/Bitbucket';
 import { useDarkMode } from '../../context/DarkMode';
 import PersesLogoCropped from '../../components/logo/PersesLogoCropped';
 import DarkThemePersesLogo from '../../components/logo/DarkThemePersesLogo';
@@ -50,115 +48,101 @@ import { useIsLaptopSize } from '../../utils/browser-size';
 import { useConfigContext } from '../../context/Config';
 import { buildRedirectQueryString, useRedirectQueryParam } from '../../model/auth-client';
 
-// A simple map to know which button to use, according to the configuration.
-// If the issuer/auth url contains the given key, this will use the corresponding button.
-// noinspection JSUnusedGlobalSymbols
-const SOCIAL_BUTTONS_MAPPING = {
-  // Managed by the lib.
-  amazon: () => AmazonLoginButton,
-  apple: () => AppleLoginButton,
-  buffer: () => BufferLoginButton,
-  discord: () => DiscordLoginButton,
-  facebook: () => FacebookLoginButton,
-  github: () => GithubLoginButton,
-  google: () => GoogleLoginButton,
-  instagram: () => InstagramLoginButton,
-  linkedin: () => LinkedInLoginButton,
-  metamask: () => MetamaskLoginButton,
-  microsoft: () => MicrosoftLoginButton,
-  okta: () => OktaLoginButton,
-  slack: () => SlackLoginButton,
-  telegram: () => TelegramLoginButton,
-  tiktok: () => TikTokLoginButton,
-  twitter: () => TwitterLoginButton,
-  yahoo: () => YahooLoginButton,
-  zalo: () => ZaloLoginButton,
-  // Not (yet?) managed by the lib.
-  gitlab: () =>
-    createButton({
-      icon: createSvgIcon(Gitlab),
-      iconFormat: (name) => `fa fa-${name}`,
-      style: { background: '#fc6d26' },
-      activeStyle: { background: '#d55a1c' },
-    }),
-  bitbucket: () =>
-    createButton({
-      icon: createSvgIcon(Bitbucket),
-      iconFormat: (name) => `fa fa-${name}`,
-      style: { background: '#0C66E4' },
-      activeStyle: { background: '#0055CC' },
-    }),
-  // Default button. Will match all remaining providers.
-  '': (theme: Theme) => {
-    return createButton({
-      icon: '',
-      style: {
-        color: theme.palette.text.primary,
-        backgroundColor: theme.palette.background.default,
-      },
-      activeStyle: {
-        backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-      },
-    });
-  },
-};
-
-/**
- * Get the social button corresponding with the given URL (issuer or auth url).
- * If no social button is associated, it will build one using the theme.
- * @param theme
- * @param url
- */
-function computeSocialButtonFromURL(theme: Theme, url: string) {
-  for (const [key, createButton] of Object.entries(SOCIAL_BUTTONS_MAPPING)) {
-    if (url.includes(key)) {
-      return createButton(theme);
-    }
-  }
-
-  // Should not happen as '' is always contained in any string.
-  return SOCIAL_BUTTONS_MAPPING[''](theme);
-}
-
 export function SignWrapper(props: { children: ReactNode }): ReactElement {
+  const GitlabIcon = useIcon('Gitlab');
+  const CodeIcon = useIcon('Code');
   const { isDarkModeEnabled } = useDarkMode();
   const isLaptopSize = useIsLaptopSize();
   const config = useConfigContext();
-  const theme = useTheme();
+  const socialButtonsMapping = useMemo(
+    () => ({
+      amazon: () => AmazonLoginButton,
+      apple: () => AppleLoginButton,
+      buffer: () => BufferLoginButton,
+      discord: () => DiscordLoginButton,
+      facebook: () => FacebookLoginButton,
+      github: () => GithubLoginButton,
+      google: () => GoogleLoginButton,
+      instagram: () => InstagramLoginButton,
+      linkedin: () => LinkedInLoginButton,
+      metamask: () => MetamaskLoginButton,
+      microsoft: () => MicrosoftLoginButton,
+      okta: () => OktaLoginButton,
+      slack: () => SlackLoginButton,
+      telegram: () => TelegramLoginButton,
+      tiktok: () => TikTokLoginButton,
+      twitter: () => TwitterLoginButton,
+      yahoo: () => YahooLoginButton,
+      zalo: () => ZaloLoginButton,
+      gitlab: () =>
+        createButton({
+          icon: createSvgIcon(GitlabIcon),
+          iconFormat: (name) => `fa fa-${name}`,
+          style: { background: '#fc6d26' },
+          activeStyle: { background: '#d55a1c' },
+        }),
+      bitbucket: () =>
+        createButton({
+          icon: createSvgIcon(CodeIcon),
+          iconFormat: (name) => `fa fa-${name}`,
+          style: { background: '#0C66E4' },
+          activeStyle: { background: '#0055CC' },
+        }),
+      '': () =>
+        createButton({
+          icon: '',
+          style: {
+            color: 'var(--ps-text-primary)',
+            backgroundColor: 'var(--ps-background-default)',
+          },
+          activeStyle: {
+            backgroundColor: 'var(--ps-color-primary-hover)',
+          },
+        }),
+    }),
+    [CodeIcon, GitlabIcon]
+  );
+
+  const computeSocialButtonFromURL = useCallback(
+    (url: string) => {
+      for (const [key, createButtonFromMap] of Object.entries(socialButtonsMapping)) {
+        if (url.includes(key)) {
+          return createButtonFromMap();
+        }
+      }
+
+      return socialButtonsMapping['']();
+    },
+    [socialButtonsMapping]
+  );
   const oauthProviders = (config.config?.security?.authentication?.providers?.oauth || []).map((provider) => ({
     path: `oauth/${provider.slug_id}`,
     name: provider.name,
-    button: computeSocialButtonFromURL(theme, provider.auth_url),
+    button: computeSocialButtonFromURL(provider.auth_url),
   }));
   const oidcProviders = (config.config?.security?.authentication?.providers?.oidc || []).map((provider) => ({
     path: `oidc/${provider.slug_id}`,
     name: provider.name,
-    button: computeSocialButtonFromURL(theme, provider.issuer),
+    button: computeSocialButtonFromURL(provider.issuer),
   }));
   const socialProviders = [...oidcProviders, ...oauthProviders];
   const nativeProviderIsEnabled = config.config?.security?.authentication?.providers?.enable_native;
   const path = useRedirectQueryParam();
 
   return (
-    <Stack
-      width="100%"
-      flexDirection={isLaptopSize ? 'row' : 'column'}
-      alignItems="center"
-      justifyContent="center"
-      gap={2}
-    >
+    <div className={`ps-SignWrapper ${isLaptopSize ? 'ps-SignWrapper--laptop' : ''}`}>
       {!isLaptopSize ? <PersesLogoCropped /> : isDarkModeEnabled ? <DarkThemePersesLogo /> : <LightThemePersesLogo />}
-      <Divider
+      <Separator
         orientation={isLaptopSize ? 'vertical' : 'horizontal'}
-        variant="middle"
-        flexItem
-        sx={{ marginTop: isLaptopSize ? '30vh' : undefined, marginBottom: isLaptopSize ? '30vh' : undefined }}
+        className={`ps-SignWrapper-divider ${isLaptopSize ? 'ps-SignWrapper-divider--vertical' : ''}`}
       />
-      <Stack gap={1} sx={{ maxWidth: '85%', minWidth: '200px' }}>
+      <div className="ps-SignWrapper-content">
         {nativeProviderIsEnabled && props.children}
         {nativeProviderIsEnabled && socialProviders.length > 0 && (
-          <div>
-            <Divider sx={{ marginTop: '16px' }}>or</Divider>
+          <div className="ps-SignWrapper-orDivider">
+            <Separator className="ps-SignWrapper-orLine" />
+            <span className="ps-SignWrapper-orText">or</span>
+            <Separator className="ps-SignWrapper-orLine" />
           </div>
         )}
         {socialProviders.map((provider) => {
@@ -178,7 +162,7 @@ export function SignWrapper(props: { children: ReactNode }): ReactElement {
             </SocialButton>
           );
         })}
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 }

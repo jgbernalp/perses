@@ -11,23 +11,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Compass from 'mdi-material-ui/Compass';
 import React, { ReactElement, useMemo } from 'react';
 import { PluginRegistry } from '@perses-dev/plugin-system';
 import { ExternalVariableDefinition } from '@perses-dev/core';
-import { CircularProgress, Stack } from '@mui/material';
-import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
+import { ErrorAlert, ErrorBoundary, Progress, useIcon } from '@perses-dev/components';
 import { ViewExplore } from '@perses-dev/explore';
 import AppBreadcrumbs from '../../components/breadcrumbs/AppBreadcrumbs';
 import { useDatasourceApi } from '../../model/datasource-api';
 import { useRemotePluginLoader } from '../../model/remote-plugin-loader';
 import { useGlobalVariableList } from '../../model/global-variable-client';
 import { buildGlobalVariableDefinition } from '../../utils/variables';
+import './ExploreView.css';
 
 function ExploreView(): ReactElement {
+  const CompassIcon = useIcon('Compass');
   return (
     <HelperExploreView
-      exploreTitleComponent={<AppBreadcrumbs rootPageName="Explore" icon={<Compass fontSize="large" />} />}
+      exploreTitleComponent={<AppBreadcrumbs rootPageName="Explore" icon={<CompassIcon fontSize="large" />} />}
     />
   );
 }
@@ -51,9 +51,9 @@ function HelperExploreView(props: HelperExploreViewProps): ReactElement {
 
   if (isLoadingGlobalVars) {
     return (
-      <Stack width="100%" sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Stack>
+      <div className="ps-ExploreView-loading">
+        <Progress />
+      </div>
     );
   }
 

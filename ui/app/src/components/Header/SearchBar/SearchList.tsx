@@ -14,11 +14,11 @@
 import { isProjectMetadata, Resource } from '@perses-dev/core';
 import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { KVSearch, KVSearchConfiguration, KVSearchResult } from '@nexucis/kvsearch';
-import { Box, Button, Chip, Typography } from '@mui/material';
-import Archive from 'mdi-material-ui/Archive';
-import MiddleAlertIcon from 'mdi-material-ui/StarFourPointsOutline';
+import { Button, useIcon, useIsDarkMode } from '@perses-dev/components';
+import { ComponentType } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ProjectRoute } from '../../../model/route';
+import './SearchList.css';
 
 const kvSearchConfig: KVSearchConfiguration = {
   indexedKeys: [['metadata', 'name']],
@@ -46,7 +46,7 @@ export interface SearchListProps {
   list: Array<Resource & { highlight?: boolean }>;
   query: string;
   onClick: () => void;
-  icon: typeof Archive;
+  icon: ComponentType<{ className?: string }>;
   chip?: boolean;
   buildRouting?: (resource: Resource) => string;
   isResource?: (isAvailable: boolean) => void;
@@ -81,72 +81,77 @@ export function SearchList(props: SearchListProps): ReactElement | null {
   if (!filteredList.length) return null;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flexShrink: 0, height: 'auto', minHeight: 0, minWidth: 0 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          marginTop: 0.5,
-          marginBottom: 1,
-          marginLeft: 0.5,
-        }}
-      >
-        <props.icon sx={{ marginRight: 0.5 }} fontSize="medium" />
-        <Typography variant="h3">{filteredList[0]?.original.kind}s</Typography>
-      </Box>
+    <SearchListContent
+      filteredList={filteredList}
+      currentSizeList={currentSizeList}
+      setCurrentSizeList={setCurrentSizeList}
+      icon={props.icon}
+      chip={props.chip}
+      buildRouting={props.buildRouting}
+      onClick={props.onClick}
+      kvSearch={kvSearch}
+    />
+  );
+}
+
+interface SearchListContentProps {
+  filteredList: Array<KVSearchResult<Resource & { highlight?: boolean }>>;
+  currentSizeList: number;
+  setCurrentSizeList: (size: number) => void;
+  icon: ComponentType<{ className?: string }>;
+  chip?: boolean;
+  buildRouting?: (resource: Resource) => string;
+  onClick: () => void;
+  kvSearch: KVSearch<Resource>;
+}
+
+function SearchListContent(props: SearchListContentProps): ReactElement {
+  const { filteredList, currentSizeList, setCurrentSizeList, chip, onClick, kvSearch } = props;
+  const isDarkMode = useIsDarkMode();
+  const HighlightIcon = useIcon('Sparkles');
+
+  return (
+    <div className="ps-SearchList">
+      <div className="ps-SearchList-header">
+        <props.icon className="ps-SearchList-headerIcon" />
+        <h3 className="ps-SearchList-title">{filteredList[0]?.original.kind}s</h3>
+      </div>
 
       {filteredList.slice(0, currentSizeList).map((search) => (
         <Button
           variant="outlined"
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: 1,
-            marginLeft: 1,
-            marginRight: 1,
-            backgroundColor: (theme) =>
-              search.original.highlight
-                ? theme.palette.mode === 'dark'
-                  ? 'rgba(255, 165, 0, 0.2)'
-                  : 'rgba(255, 223, 186, 0.3)'
-                : 'inherit',
-            borderColor: (theme) =>
-              search.original.highlight ? (theme.palette.mode === 'dark' ? 'orange' : 'darkorange') : 'inherit',
-            fontWeight: search.original.highlight ? 'bold' : 'normal',
-            color: (theme) =>
-              search.original.highlight
-                ? theme.palette.mode === 'dark'
-                  ? theme.palette.warning.light
-                  : 'inherit'
-                : 'inherit',
-          }}
-          component={RouterLink}
-          onClick={props.onClick}
-          to={`${props.buildRouting ? props.buildRouting(search.original) : buildRouting(search.original)}`}
+          className="ps-SearchList-item"
+          data-highlight={search.original.highlight || undefined}
+          data-dark={isDarkMode || undefined}
           key={`${buildBoxSearchKey(search.original)}`}
         >
-          <Box sx={{ display: 'flex' }} flexDirection="row" alignItems="center">
-            {search.original.highlight && <MiddleAlertIcon sx={{ marginRight: 0.5 }} />}
-            <span
-              dangerouslySetInnerHTML={{
-                __html: kvSearch.render(search.original, search.matched, {
-                  pre: '<strong style="color:darkorange">',
-                  post: '</strong>',
-                  escapeHTML: true,
-                }).metadata.name,
-              }}
-            />
-          </Box>
-          {isProjectMetadata(search.original.metadata) && props.chip && (
-            <Chip label={`${search.original.metadata.project}`} size="small" variant="outlined" />
-          )}
+          <RouterLink
+            onClick={onClick}
+            to={`${props.buildRouting ? props.buildRouting(search.original) : buildRouting(search.original)}`}
+          >
+            <span className="ps-SearchList-itemContent">
+              {search.original.highlight && <HighlightIcon className="ps-SearchList-highlightIcon" />}
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: kvSearch.render(search.original, search.matched, {
+                    pre: '<strong style="color:darkorange">',
+                    post: '</strong>',
+                    escapeHTML: true,
+                  }).metadata.name,
+                }}
+              />
+            </span>
+            {isProjectMetadata(search.original.metadata) && chip && (
+              <span className="ps-SearchList-chip">{search.original.metadata.project}</span>
+            )}
+          </RouterLink>
         </Button>
       ))}
       {filteredList.length > currentSizeList && (
-        <Button onClick={() => setCurrentSizeList(currentSizeList + 10)}> see more...</Button>
+        <Button variant="ghost" onClick={() => setCurrentSizeList(currentSizeList + 10)}>
+          see more...
+        </Button>
       )}
-    </Box>
+    </div>
   );
 }

@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './GlobalRoleBindings.css';
 import { GlobalRoleBindingResource, RoleBinding } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
 import { RoleBindingList } from '../../../components/rolebindings/RoleBindingList';
@@ -92,7 +92,7 @@ export function GlobalRoleBindings(props: GlobalRoleBindingsProps): ReactElement
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-GlobalRoleBindings" id={id}>
       <RoleBindingList
         data={data ?? []}
         isLoading={isLoading}
@@ -114,6 +114,6 @@ export function GlobalRoleBindings(props: GlobalRoleBindingsProps): ReactElement
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

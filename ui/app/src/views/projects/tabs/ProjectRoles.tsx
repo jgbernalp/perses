@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './ProjectRoles.css';
 import { Role, RoleResource } from '@perses-dev/core';
 import { useSnackbar } from '@perses-dev/components';
 import { RoleList } from '../../../components/roles/RoleList';
@@ -93,7 +93,7 @@ export function ProjectRoles(props: ProjectRolesProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-ProjectRoles" id={id}>
       <RoleList
         data={data ?? []}
         isLoading={isLoading}
@@ -115,6 +115,6 @@ export function ProjectRoles(props: ProjectRolesProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

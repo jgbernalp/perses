@@ -1,30 +1,10 @@
-import { Box, CircularProgress, Link, Theme } from '@mui/material';
-import { SxProps } from '@mui/system/styleFunctionSx/styleFunctionSx';
-import Github from 'mdi-material-ui/Github';
-import { useSnackbar } from '@perses-dev/components';
+import { useSnackbar, Progress, useIcon } from '@perses-dev/components';
 import { ReactElement } from 'react';
 import { useHealth } from '../model/health-client';
-
-const style: SxProps<Theme> = {
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  '& li': {
-    listStyle: 'none',
-    display: 'inline',
-    fontSize: '0.8rem',
-  },
-  '& li + li:before': {
-    content: '"|"',
-    padding: '3px',
-  },
-  '& a:visited': {
-    color: 'inherit',
-  },
-};
+import './Footer.css';
 
 export default function Footer(): ReactElement {
+  const GithubIcon = useIcon('Github');
   const { exceptionSnackbar } = useSnackbar();
   const { data, isLoading, error } = useHealth();
 
@@ -33,25 +13,20 @@ export default function Footer(): ReactElement {
   }
 
   return (
-    <Box component="footer" sx={style}>
-      <ul
-        style={{
-          paddingLeft: 0,
-        }}
-      >
+    <footer className="ps-Footer">
+      <ul className="ps-Footer-list">
         <li>&copy; The Perses Authors {new Date().getFullYear()}</li>
         <li>
           <a href="https://github.com/perses/perses" target="_blank" rel="noreferrer">
-            <Github sx={{ verticalAlign: 'bottom' }} />
+            <GithubIcon className="ps-Footer-github-icon" />
           </a>
         </li>
         <li>
           {isLoading ? (
-            <CircularProgress size="1rem" />
+            <Progress size="sm" />
           ) : data !== undefined && data.version !== '' ? (
-            <Link
-              color="inherit"
-              underline="hover"
+            <a
+              className="ps-Footer-link"
               target="_blank"
               rel="noreferrer"
               href={
@@ -61,12 +36,12 @@ export default function Footer(): ReactElement {
               }
             >
               {data.version}
-            </Link>
+            </a>
           ) : (
             'development version'
           )}
         </li>
       </ul>
-    </Box>
+    </footer>
   );
 }

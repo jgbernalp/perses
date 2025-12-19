@@ -12,8 +12,7 @@
 // limitations under the License.
 
 import { Dispatch, DispatchWithoutAction, ReactElement } from 'react';
-import { Button, TextField } from '@mui/material';
-import { Dialog, useSnackbar } from '@perses-dev/components';
+import { Button, Dialog, TextField, useSnackbar } from '@perses-dev/components';
 import { DashboardResource, getResourceDisplayName, getResourceExtendedDisplayName } from '@perses-dev/core';
 import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -76,7 +75,7 @@ export const RenameDashboardDialog = (props: RenameDashboardDialogProps): ReactE
       <Dialog.Header>Rename Dashboard</Dialog.Header>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(processForm)}>
-          <Dialog.Content sx={{ width: '100%' }}>
+          <Dialog.Content>
             <Controller
               control={form.control}
               name="dashboardName"
@@ -84,11 +83,9 @@ export const RenameDashboardDialog = (props: RenameDashboardDialogProps): ReactE
                 <TextField
                   {...field}
                   required
-                  margin="dense"
                   id="name"
                   label="Name"
                   type="text"
-                  fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
                 />
@@ -96,10 +93,10 @@ export const RenameDashboardDialog = (props: RenameDashboardDialogProps): ReactE
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button variant="contained" disabled={!form.formState.isValid} type="submit">
+            <Button variant="solid" disabled={!form.formState.isValid} type="submit">
               Rename
             </Button>
-            <Button variant="outlined" color="secondary" onClick={handleClose}>
+            <Button variant="outlined" onClick={handleClose}>
               Cancel
             </Button>
           </Dialog.Actions>

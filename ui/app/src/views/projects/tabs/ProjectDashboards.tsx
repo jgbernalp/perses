@@ -11,23 +11,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card, CardProps } from '@mui/material';
-import { ReactElement } from 'react';
+import { ReactElement, HTMLAttributes } from 'react';
 import { useDashboardList } from '../../../model/dashboard-client';
 import { DashboardList } from '../../../components/DashboardList/DashboardList';
 import { useIsEphemeralDashboardEnabled } from '../../../context/Config';
+import './ProjectDashboards.css';
 
-interface ProjectDashboardsProps extends CardProps {
+interface ProjectDashboardsProps extends HTMLAttributes<HTMLDivElement> {
   projectName: string;
   hideToolbar?: boolean;
 }
 
-export function ProjectDashboards({ projectName, hideToolbar, ...props }: ProjectDashboardsProps): ReactElement {
+export function ProjectDashboards({
+  projectName,
+  hideToolbar,
+  className,
+  ...props
+}: ProjectDashboardsProps): ReactElement {
   const { data, isLoading } = useDashboardList({ project: projectName });
   const isEphemeralDashboardEnabled = useIsEphemeralDashboardEnabled();
 
   return (
-    <Card {...props}>
+    <div className={`ps-ProjectDashboards ${className || ''}`} {...props}>
       <DashboardList
         dashboardList={data ?? []}
         hideToolbar={hideToolbar}
@@ -43,6 +48,6 @@ export function ProjectDashboards({ projectName, hideToolbar, ...props }: Projec
         }}
         isEphemeralDashboardEnabled={isEphemeralDashboardEnabled}
       />
-    </Card>
+    </div>
   );
 }

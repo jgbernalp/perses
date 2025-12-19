@@ -12,12 +12,9 @@
 // limitations under the License.
 
 import { getMetadataProject, RoleBinding, Action } from '@perses-dev/core';
-import { Stack } from '@mui/material';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
+import './RoleBindingList.css';
 import { ReactElement, useCallback, useMemo, useState } from 'react';
-import PencilIcon from 'mdi-material-ui/Pencil';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
+import { GridColDef, GridRowParams, useIcon } from '@perses-dev/components';
 import { useIsReadonly } from '../../context/Config';
 import { subjectsSummary } from '../../utils/role';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
@@ -45,6 +42,9 @@ import { RoleBindingDrawer } from './RoleBindingDrawer';
  */
 export function RoleBindingList<T extends RoleBinding>(props: ListPropertiesWithCallbacks<T>): ReactElement {
   const { data, hideToolbar, onCreate, onUpdate, onDelete, initialState, isLoading } = props;
+  const EditIcon = useIcon('Edit');
+  const DeleteIcon = useIcon('Delete');
+  const CopyIcon = useIcon('Copy');
   const isReadonly = useIsReadonly();
 
   const findRoleBinding = useCallback(
@@ -124,7 +124,7 @@ export function RoleBindingList<T extends RoleBinding>(props: ListPropertiesWith
     [findRoleBinding]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       PROJECT_COL_DEF,
       NAME_COL_DEF,
@@ -138,42 +138,48 @@ export function RoleBindingList<T extends RoleBinding>(props: ListPropertiesWith
         type: 'actions',
         flex: 0.5,
         minWidth: 150,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Edit"
-            action="update"
-            scope={params.row.project ? 'RoleBinding' : 'GlobalRoleBinding'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleEditButtonClick(params.row.name, params.row.project)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-duplicate'}
-            icon={<ContentCopyIcon />}
-            label="Duplicate"
-            action="create"
-            scope={params.row.project ? 'RoleBinding' : 'GlobalRoleBinding'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleDuplicateButtonClick(params.row.name, params.row.project)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope={params.row.project ? 'RoleBinding' : 'GlobalRoleBinding'}
-            project={params.row.project ? params.row.project : GlobalProject}
-            onClick={handleDeleteButtonClick(params.row.name, params.row.project)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+          const scope = row.project ? 'RoleBinding' : 'GlobalRoleBinding';
+          const project = row.project ? row.project : GlobalProject;
+
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Edit"
+              action="update"
+              scope={scope}
+              project={project}
+              onClick={handleEditButtonClick(row.name, row.project)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-duplicate'}
+              icon={<CopyIcon />}
+              label="Duplicate"
+              action="create"
+              scope={scope}
+              project={project}
+              onClick={handleDuplicateButtonClick(row.name, row.project)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope={scope}
+              project={project}
+              onClick={handleDeleteButtonClick(row.name, row.project)}
+            />,
+          ];
+        },
       },
     ],
     [handleEditButtonClick, handleDuplicateButtonClick, handleDeleteButtonClick]
   );
 
   return (
-    <Stack width="100%">
+    <div className="ps-RoleBindingList">
       <RoleBindingDataGrid
         rows={rows}
         columns={columns}
@@ -202,6 +208,6 @@ export function RoleBindingList<T extends RoleBinding>(props: ListPropertiesWith
           />
         </>
       )}
-    </Stack>
+    </div>
   );
 }

@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, CircularProgress, Stack } from '@mui/material';
-import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
+import './HelperDashboardView.css';
+import { ErrorAlert, ErrorBoundary, Progress } from '@perses-dev/components';
 import {
   DashboardResource,
   EphemeralDashboardResource,
@@ -75,9 +75,9 @@ export function HelperDashboardView(props: GenericDashboardViewProps): ReactElem
 
   if (isLoadingProject || isLoadingProjectVars || isLoadingGlobalVars) {
     return (
-      <Stack width="100%" sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Stack>
+      <div className="ps-HelperDashboardView-loading">
+        <Progress variant="circular" />
+      </div>
     );
   }
 
@@ -86,13 +86,7 @@ export function HelperDashboardView(props: GenericDashboardViewProps): ReactElem
   }
 
   return (
-    <Box
-      component="main"
-      sx={{
-        flexGrow: 1,
-        overflow: 'hidden',
-      }}
-    >
+    <main className="ps-HelperDashboardView">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         <PluginRegistry
           pluginLoader={pluginLoader}
@@ -133,6 +127,6 @@ export function HelperDashboardView(props: GenericDashboardViewProps): ReactElem
           </ValidationProvider>
         </PluginRegistry>
       </ErrorBoundary>
-    </Box>
+    </main>
   );
 }

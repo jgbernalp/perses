@@ -1,0 +1,90 @@
+/* Copyright 2024 The Perses Authors
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License. */
+
+.ps-HomeView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
+  margin: var(--ps-spacing-md);
+  gap: var(--ps-spacing-xs);
+}
+
+.ps-HomeView--mobile {
+  margin: var(--ps-spacing-xs);
+}
+
+.ps-HomeView-header {
+  width: 100%;
+}
+
+.ps-HomeView-headerRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ps-HomeView-actions {
+  display: flex;
+  flex-direction: row;
+  gap: var(--ps-spacing-md);
+}
+
+.ps-HomeView-actions--mobile {
+  gap: var(--ps-spacing-xs);
+}
+
+.ps-HomeView-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: calc(var(--ps-spacing-md) * 4);
+}
+
+@media (max-width: 1200px) {
+  .ps-HomeView-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ps-spacing-md);
+  }
+}
+
+.ps-HomeView-main {
+  min-width: 0;
+}
+
+.ps-HomeView-mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-spacing-md);
+}
+
+.ps-HomeView-sidebar {
+  min-width: 0;
+}
+
+.ps-HomeView-sidebarContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-spacing-md);
+}
+
+.ps-HomeView-menuLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.ps-HomeView-menuLink--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

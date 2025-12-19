@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './GlobalVariables.css';
 import { useSnackbar } from '@perses-dev/components';
 import { getResourceExtendedDisplayName, GlobalVariableResource, Variable } from '@perses-dev/core';
 import { VariableList } from '../../../components/variable/VariableList';
@@ -98,7 +98,7 @@ export function GlobalVariables(props: GlobalVariablesProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-GlobalVariables" id={id}>
       <VariableList
         data={data ?? []}
         isLoading={isLoading}
@@ -121,6 +121,6 @@ export function GlobalVariables(props: GlobalVariablesProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

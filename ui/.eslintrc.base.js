@@ -82,30 +82,6 @@ module.exports = {
     // because it avoids false errors on cases where we have a regular
     // import and an `import type`.
     'import/no-duplicates': 'error',
-
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            /**
-             * This library is gigantic and named imports end up slowing down builds/blowing out bundle sizes,
-             * so this prevents that style of import.
-             */
-            group: ['mdi-material-ui', '!mdi-material-ui/'],
-            message: `
-Please use the default import from the icon file directly rather than using a named import.
-
-Good:
-import IconName from 'mdi-material-ui/IconName';
-
-Bad:
-import { IconName } from 'mdi-material-ui';
-`,
-          },
-        ],
-      },
-    ],
   },
 
   ignorePatterns: ['**/dist'],

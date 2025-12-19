@@ -41,7 +41,7 @@ export function UserDrawer({
   };
 
   return (
-    <Drawer isOpen={isOpen} onClose={handleClickOut} data-testid="user-editor">
+    <Drawer open={isOpen} onClose={handleClickOut} data-testid="user-editor">
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         {isOpen && (
           <UserEditorForm

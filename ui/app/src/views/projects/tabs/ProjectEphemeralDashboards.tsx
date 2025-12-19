@@ -11,12 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card, CardProps } from '@mui/material';
-import { ReactElement } from 'react';
+import { ReactElement, HTMLAttributes } from 'react';
 import { useEphemeralDashboardList } from '../../../model/ephemeral-dashboard-client';
 import { EphemeralDashboardList } from '../../../components/EphemeralDashboardList/EphemeralDashboardList';
+import './ProjectEphemeralDashboards.css';
 
-interface ProjectEphemeralDashboardsProps extends CardProps {
+interface ProjectEphemeralDashboardsProps extends HTMLAttributes<HTMLDivElement> {
   projectName: string;
   hideToolbar?: boolean;
 }
@@ -24,12 +24,13 @@ interface ProjectEphemeralDashboardsProps extends CardProps {
 export function ProjectEphemeralDashboards({
   projectName,
   hideToolbar,
+  className,
   ...props
 }: ProjectEphemeralDashboardsProps): ReactElement {
   const { data, isLoading } = useEphemeralDashboardList(projectName);
 
   return (
-    <Card {...props}>
+    <div className={`ps-ProjectEphemeralDashboards ${className || ''}`} {...props}>
       <EphemeralDashboardList
         ephemeralDashboardList={data ?? []}
         hideToolbar={hideToolbar}
@@ -44,6 +45,6 @@ export function ProjectEphemeralDashboards({
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

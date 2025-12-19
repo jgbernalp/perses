@@ -12,10 +12,7 @@
 // limitations under the License.
 
 import { Link as RouterLink } from 'react-router-dom';
-import { AppBar, Box, Button, Divider, Toolbar } from '@mui/material';
-import Cog from 'mdi-material-ui/Cog';
-import ShieldStar from 'mdi-material-ui/ShieldStar';
-import Compass from 'mdi-material-ui/Compass';
+import { Button, Separator, useIcon } from '@perses-dev/components';
 import React from 'react';
 import { useIsLaptopSize, useIsMobileSize } from '../../utils/browser-size';
 import { AdminRoute, ConfigRoute } from '../../model/route';
@@ -28,8 +25,12 @@ import { ToolMenu } from './ToolMenu';
 import { AccountMenu } from './AccountMenu';
 import { ThemeSwitch } from './ThemeSwitch';
 import { SearchBar } from './SearchBar/SearchBar';
+import './Header.css';
 
 export default function Header(): JSX.Element {
+  const ShieldStarIcon = useIcon('ShieldStar');
+  const CogIcon = useIcon('Settings');
+  const CompassIcon = useIcon('Compass');
   const isLaptopSize = useIsLaptopSize();
   const isMobileSize = useIsMobileSize();
   const isAuthEnabled = useIsAuthEnabled();
@@ -45,94 +46,63 @@ export default function Header(): JSX.Element {
   ]);
 
   return (
-    <AppBar position="relative">
-      <Toolbar
-        sx={{
-          backgroundColor: (theme) => theme.palette.designSystem.blue[700],
-          '&': {
-            minHeight: '40px',
-            paddingLeft: 0,
-            paddingRight: 0.75,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
-            flexShrink: isMobileSize ? 2 : 1,
-          }}
-        >
-          <Button
-            component={RouterLink}
-            to="/"
-            sx={{
-              padding: 0,
-            }}
-          >
+    <header className="ps-Header">
+      <div className="ps-Header-toolbar">
+        <div className="ps-Header-left" data-mobile={isMobileSize || undefined}>
+          <RouterLink to="/" className="ps-Header-logo">
             {isLaptopSize ? <WhitePersesLogo /> : <PersesLogoCropped color="white" width={32} height={32} />}
-          </Button>
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ borderRightColor: 'rgba(255,255,255,0.2)', marginRight: 0.5 }}
-          />
+          </RouterLink>
+          <Separator orientation="vertical" className="ps-Header-divider" />
           {!isMobileSize ? (
             <>
               {hasPartialPermission && (
                 <Button
+                  variant="ghost"
                   aria-label="Administration"
                   aria-controls="menu-admin-appbar"
                   aria-haspopup="true"
-                  color="inherit"
-                  component={RouterLink}
-                  to={AdminRoute}
+                  className="ps-Header-navButton"
                 >
-                  <ShieldStar sx={{ marginRight: 0.5 }} /> Admin
+                  <RouterLink to={AdminRoute}>
+                    <ShieldStarIcon className="ps-Header-navIcon" /> Admin
+                  </RouterLink>
                 </Button>
               )}
               <Button
+                variant="ghost"
                 aria-label="Config"
                 aria-controls="menu-config-appbar"
                 aria-haspopup="true"
-                color="inherit"
-                component={RouterLink}
-                to={ConfigRoute}
+                className="ps-Header-navButton"
               >
-                <Cog sx={{ marginRight: 0.5 }} /> Config
+                <RouterLink to={ConfigRoute}>
+                  <CogIcon className="ps-Header-navIcon" /> Config
+                </RouterLink>
               </Button>
               {IsExplorerEnabled && (
                 <Button
+                  variant="ghost"
                   aria-label="Explore"
                   aria-controls="menu-config-appbar"
                   aria-haspopup="true"
-                  color="inherit"
-                  component={RouterLink}
-                  to="/explore"
+                  className="ps-Header-navButton"
                 >
-                  <Compass sx={{ marginRight: 0.5 }} /> Explore
+                  <RouterLink to="/explore">
+                    <CompassIcon className="ps-Header-navIcon" /> Explore
+                  </RouterLink>
                 </Button>
               )}
             </>
           ) : (
             <ToolMenu />
           )}
-        </Box>
+        </div>
         <SearchBar />
-        <Box
-          sx={{
-            width: '100%',
-            flexShrink: isMobileSize ? 2 : 1,
-            display: 'flex',
-            justifyContent: 'end',
-          }}
-        >
+        <div className="ps-Header-right" data-mobile={isMobileSize || undefined}>
           {isAuthEnabled ? <AccountMenu /> : <ThemeSwitch isAuthEnabled={false} />}
-        </Box>
-      </Toolbar>
+        </div>
+      </div>
       <BannerInfo />
-    </AppBar>
+    </header>
   );
 }

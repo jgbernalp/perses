@@ -11,18 +11,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Breadcrumbs as MUIBreadcrumbs, Link, styled, Stack, Typography } from '@mui/material';
+import React, { ReactElement } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { ReactElement } from 'react';
+import './breadcrumbs.css';
 
-const BREADCRUMB_HEIGHT = '35px';
+export interface BreadcrumbsProps {
+  children?: React.ReactNode;
+  id?: string;
+  className?: string;
+}
 
-export const Breadcrumbs = styled(MUIBreadcrumbs)({
-  fontSize: 'large',
-  paddingLeft: 0.5,
-  height: BREADCRUMB_HEIGHT,
-  lineHeight: BREADCRUMB_HEIGHT,
-});
+export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
+  const { children, id, className } = props;
+  return (
+    <nav id={id} className={`ps-Breadcrumbs ${className || ''}`} aria-label="breadcrumb">
+      <ol className="ps-Breadcrumbs-list">
+        {React.Children.map(children, (child, index) => (
+          <li key={index} className="ps-Breadcrumbs-item">
+            {index > 0 && <span className="ps-Breadcrumbs-separator">/</span>}
+            {child}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
 
 export function HomeLinkCrumb(): ReactElement {
   return <LinkCrumb to="/">Home</LinkCrumb>;
@@ -35,11 +48,7 @@ export interface StackCrumbProps {
 export function StackCrumb(props: StackCrumbProps): ReactElement {
   const { children } = props;
 
-  return (
-    <Stack direction="row" alignItems="center" gap={0.5}>
-      {children}
-    </Stack>
-  );
+  return <span className="ps-StackCrumb">{children}</span>;
 }
 
 export interface LinkCrumbProps {
@@ -51,9 +60,9 @@ export function LinkCrumb(props: LinkCrumbProps): ReactElement {
   const { children, to } = props;
 
   return (
-    <Link underline="hover" variant="h3" component={RouterLink} to={to}>
+    <RouterLink to={to} className="ps-LinkCrumb">
       {children}
-    </Link>
+    </RouterLink>
   );
 }
 
@@ -64,5 +73,5 @@ export interface TitleCrumbProps {
 export function TitleCrumb(props: TitleCrumbProps): ReactElement {
   const { children } = props;
 
-  return <Typography variant="h1">{children}</Typography>;
+  return <h1 className="ps-TitleCrumb">{children}</h1>;
 }

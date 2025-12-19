@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Card } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
+import './Users.css';
 import { useSnackbar } from '@perses-dev/components';
 import { UserResource } from '@perses-dev/core';
 import { UserList } from '../../../components/users/UserList';
@@ -92,7 +92,7 @@ export function Users(props: UsersProps): ReactElement {
   );
 
   return (
-    <Card id={id}>
+    <div className="ps-Users" id={id}>
       <UserList
         data={data ?? []}
         isLoading={isLoading}
@@ -113,6 +113,6 @@ export function Users(props: UsersProps): ReactElement {
           },
         }}
       />
-    </Card>
+    </div>
   );
 }

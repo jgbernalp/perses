@@ -11,32 +11,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, BoxProps, Stack } from '@mui/material';
-import { ReactElement, SyntheticEvent, useCallback, useMemo, useState } from 'react';
-import ViewDashboardIcon from 'mdi-material-ui/ViewDashboard';
-import CodeJsonIcon from 'mdi-material-ui/CodeJson';
-import DatabaseIcon from 'mdi-material-ui/Database';
-import ShieldIcon from 'mdi-material-ui/Shield';
-import ShieldAccountIcon from 'mdi-material-ui/ShieldAccount';
-import KeyIcon from 'mdi-material-ui/Key';
+import { Tabs, useIcon, useSnackbar } from '@perses-dev/components';
 import {
-  getResourceDisplayName,
-  getResourceExtendedDisplayName,
   DashboardSelector,
   DatasourceResource,
-  VariableResource,
-  RoleResource,
+  getResourceDisplayName,
+  getResourceExtendedDisplayName,
   RoleBindingResource,
+  RoleResource,
   SecretResource,
+  VariableResource,
 } from '@perses-dev/core';
+import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSnackbar } from '@perses-dev/components';
 import { CRUDButton, CRUDButtonProps } from '../../components/CRUDButton/CRUDButton';
-import { CreateDashboardDialog } from '../../components/dialogs';
-import { VariableDrawer } from '../../components/variable/VariableDrawer';
 import { DatasourceDrawer } from '../../components/datasource/DatasourceDrawer';
-import { useCreateDatasourceMutation } from '../../model/datasource-client';
-import { useCreateVariableMutation } from '../../model/variable-client';
+import { CreateDashboardDialog } from '../../components/dialogs';
+import { RoleBindingDrawer } from '../../components/rolebindings/RoleBindingDrawer';
+import { RoleDrawer } from '../../components/roles/RoleDrawer';
+import { SecretDrawer } from '../../components/secrets/SecretDrawer';
+import { MenuTab, MenuTabs } from '../../components/tabs';
+import { VariableDrawer } from '../../components/variable/VariableDrawer';
+import { useHasPermission } from '../../context/Authorization';
 import {
   useIsAuthEnabled,
   useIsEphemeralDashboardEnabled,
@@ -44,23 +40,21 @@ import {
   useIsProjectVariableEnabled,
   useIsReadonly,
 } from '../../context/Config';
-import { MenuTab, MenuTabs } from '../../components/tabs';
-import { useCreateRoleBindingMutation } from '../../model/rolebinding-client';
-import { useCreateRoleMutation, useRoleList } from '../../model/role-client';
-import { RoleDrawer } from '../../components/roles/RoleDrawer';
-import { RoleBindingDrawer } from '../../components/rolebindings/RoleBindingDrawer';
-import { useIsMobileSize } from '../../utils/browser-size';
-import { SecretDrawer } from '../../components/secrets/SecretDrawer';
-import { useCreateSecretMutation } from '../../model/secret-client';
+import { useCreateDatasourceMutation } from '../../model/datasource-client';
 import { useEphemeralDashboardList } from '../../model/ephemeral-dashboard-client';
-import { useHasPermission } from '../../context/Authorization';
+import { useCreateRoleMutation, useRoleList } from '../../model/role-client';
+import { useCreateRoleBindingMutation } from '../../model/rolebinding-client';
+import { useCreateSecretMutation } from '../../model/secret-client';
+import { useCreateVariableMutation } from '../../model/variable-client';
+import { useIsMobileSize } from '../../utils/browser-size';
+import './ProjectTabs.css';
 import { ProjectDashboards } from './tabs/ProjectDashboards';
-import { ProjectEphemeralDashboards } from './tabs/ProjectEphemeralDashboards';
-import { ProjectVariables } from './tabs/ProjectVariables';
 import { ProjectDatasources } from './tabs/ProjectDatasources';
-import { ProjectSecrets } from './tabs/ProjectSecrets';
-import { ProjectRoles } from './tabs/ProjectRoles';
+import { ProjectEphemeralDashboards } from './tabs/ProjectEphemeralDashboards';
 import { ProjectRoleBindings } from './tabs/ProjectRoleBindings';
+import { ProjectRoles } from './tabs/ProjectRoles';
+import { ProjectSecrets } from './tabs/ProjectSecrets';
+import { ProjectVariables } from './tabs/ProjectVariables';
 
 const dashboardsTabIndex = 'dashboards';
 const ephemeralDashboardsTabIndex = 'ephemeraldashboards';
@@ -192,7 +186,7 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
             action="create"
             scope="Dashboard"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setCreateDashboardDialogOpened(true)}
             {...props}
           >
@@ -215,7 +209,7 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
             action="create"
             scope="Datasource"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setDatasourceDrawerOpened(true)}
             {...props}
           >
@@ -252,7 +246,7 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
             action="create"
             scope="Role"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setRoleDrawerOpened(true)}
             {...props}
           >
@@ -284,7 +278,7 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
             action="create"
             scope="RoleBinding"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setRoleBindingDrawerOpened(true)}
             {...props}
           >
@@ -318,7 +312,7 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
             action="create"
             scope="Secret"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setSecretDrawerOpened(true)}
             {...props}
           >
@@ -348,7 +342,7 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
             action="create"
             scope="Variable"
             project={projectName}
-            variant="contained"
+            variant="solid"
             onClick={() => setVariableDrawerOpened(true)}
             {...props}
           >
@@ -382,22 +376,23 @@ function TabButton({ index, projectName, ...props }: TabButtonProps): ReactEleme
   }
 }
 
-interface TabPanelProps extends BoxProps {
+interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   index: string;
   value: string;
 }
 
-function TabPanel({ children, value, index, ...props }: TabPanelProps): ReactElement {
+function TabPanel({ children, value, index, className, ...props }: TabPanelProps): ReactElement {
   return (
-    <Box
+    <div
       role="tabpanel"
       hidden={value !== index}
       id={`project-tabpanel-${index}`}
       aria-labelledby={`project-tab-${index}`}
+      className={`ps-ProjectTabs-tabPanel ${className || ''}`}
       {...props}
     >
       {value === index && children}
-    </Box>
+    </div>
   );
 }
 
@@ -415,6 +410,12 @@ interface DashboardVariableTabsProps {
 
 export function ProjectTabs(props: DashboardVariableTabsProps): ReactElement {
   const { projectName, initialTab } = props;
+  const DashboardIcon = useIcon('Dashboard');
+  const CodeIcon = useIcon('Code');
+  const DatabaseIcon = useIcon('Database');
+  const KeyIcon = useIcon('Key');
+  const ShieldIcon = useIcon('Shield');
+  const ShieldAccountIcon = useIcon('ShieldAccount');
   const { tab } = useParams();
   const isAuthEnabled = useIsAuthEnabled();
   const isProjectDatasourceEnabled = useIsProjectDatasourceEnabled();
@@ -436,128 +437,146 @@ export function ProjectTabs(props: DashboardVariableTabsProps): ReactElement {
   const hasSecretReadPermission = useHasPermission('read', projectName, 'Secret');
   const hasVariableReadPermission = useHasPermission('read', projectName, 'Variable');
 
-  const handleChange = (event: SyntheticEvent, newTabIndex: string): void => {
+  const handleChange = (newTabIndex: string): void => {
     setValue(newTabIndex);
     navigate(`/projects/${projectName}/${newTabIndex}`);
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ borderBottom: 1, borderColor: 'divider' }}
-      >
-        <MenuTabs
+    <div className="ps-ProjectTabs">
+      <Tabs value={value} onValueChange={handleChange}>
+        <div className="ps-ProjectTabs-header">
+          <MenuTabs
+            // TODO: enable scrollable tabs when we have too many tabs to fit
+            // variant="scrollable"
+            // scrollButtons="auto"
+            // allowScrollButtonsMobile
+            aria-label="Project tabs"
+            className="ps-ProjectTabs-header"
+          >
+            <MenuTab
+              label="Dashboards"
+              icon={<DashboardIcon />}
+              {...a11yProps(dashboardsTabIndex)}
+              value={dashboardsTabIndex}
+              disabled={!hasDashboardReadPermission}
+            />
+            {(hasEphemeralDashboards || tab === ephemeralDashboardsTabIndex) && (
+              <MenuTab
+                label="Ephemeral Dashboards"
+                icon={<DashboardIcon />}
+                {...a11yProps(ephemeralDashboardsTabIndex)}
+                value={ephemeralDashboardsTabIndex}
+                disabled={!hasEphemeralDashboardReadPermission}
+              />
+            )}
+            {isProjectVariableEnabled && (
+              <MenuTab
+                label="Variables"
+                icon={<CodeIcon />}
+                {...a11yProps(variablesTabIndex)}
+                value={variablesTabIndex}
+                disabled={!hasVariableReadPermission}
+              />
+            )}
+            {isProjectDatasourceEnabled && (
+              <MenuTab
+                label="Datasources"
+                icon={<DatabaseIcon />}
+                {...a11yProps(datasourcesTabIndex)}
+                value={datasourcesTabIndex}
+                disabled={!hasDatasourceReadPermission}
+              />
+            )}
+            <MenuTab
+              label="Secrets"
+              icon={<KeyIcon />}
+              {...a11yProps(secretsTabIndex)}
+              value={secretsTabIndex}
+              disabled={!hasSecretReadPermission}
+            />
+            {isAuthEnabled && (
+              <MenuTab
+                label="Roles"
+                icon={<ShieldIcon />}
+                {...a11yProps(rolesTabIndex)}
+                value={rolesTabIndex}
+                disabled={!hasRoleReadPermission}
+              />
+            )}
+            {isAuthEnabled && (
+              <MenuTab
+                label="Role Bindings"
+                icon={<ShieldAccountIcon />}
+                {...a11yProps(roleBindingsTabIndex)}
+                value={roleBindingsTabIndex}
+                disabled={!hasRoleBindingReadPermission}
+              />
+            )}
+          </MenuTabs>
+          {!isMobileSize && <TabButton index={value} projectName={projectName} />}
+        </div>
+        {isMobileSize && <TabButton index={value} projectName={projectName} fullWidth style={{ marginTop: '4px' }} />}
+        <TabPanel
           value={value}
-          onChange={handleChange}
-          variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          aria-label="Project tabs"
+          index={dashboardsTabIndex}
+          className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
         >
-          <MenuTab
-            label="Dashboards"
-            icon={<ViewDashboardIcon />}
-            iconPosition="start"
-            {...a11yProps(dashboardsTabIndex)}
-            value={dashboardsTabIndex}
-            disabled={!hasDashboardReadPermission}
-          />
-          {(hasEphemeralDashboards || tab === ephemeralDashboardsTabIndex) && (
-            <MenuTab
-              label="Ephemeral Dashboards"
-              icon={<ViewDashboardIcon />}
-              iconPosition="start"
-              {...a11yProps(ephemeralDashboardsTabIndex)}
-              value={ephemeralDashboardsTabIndex}
-              disabled={!hasEphemeralDashboardReadPermission}
-            />
-          )}
-          {isProjectVariableEnabled && (
-            <MenuTab
-              label="Variables"
-              icon={<CodeJsonIcon />}
-              iconPosition="start"
-              {...a11yProps(variablesTabIndex)}
-              value={variablesTabIndex}
-              disabled={!hasVariableReadPermission}
-            />
-          )}
-          {isProjectDatasourceEnabled && (
-            <MenuTab
-              label="Datasources"
-              icon={<DatabaseIcon />}
-              iconPosition="start"
-              {...a11yProps(datasourcesTabIndex)}
-              value={datasourcesTabIndex}
-              disabled={!hasDatasourceReadPermission}
-            />
-          )}
-          <MenuTab
-            label="Secrets"
-            icon={<KeyIcon />}
-            iconPosition="start"
-            {...a11yProps(secretsTabIndex)}
-            value={secretsTabIndex}
-            disabled={!hasSecretReadPermission}
-          />
-          {isAuthEnabled && (
-            <MenuTab
-              label="Roles"
-              icon={<ShieldIcon />}
-              iconPosition="start"
-              {...a11yProps(rolesTabIndex)}
-              value={rolesTabIndex}
-              disabled={!hasRoleReadPermission}
-            />
-          )}
-          {isAuthEnabled && (
-            <MenuTab
-              label="Role Bindings"
-              icon={<ShieldAccountIcon />}
-              iconPosition="start"
-              {...a11yProps(roleBindingsTabIndex)}
-              value={roleBindingsTabIndex}
-              disabled={!hasRoleBindingReadPermission}
-            />
-          )}
-        </MenuTabs>
-        {!isMobileSize && <TabButton index={value} projectName={projectName} />}
-      </Stack>
-      {isMobileSize && <TabButton index={value} projectName={projectName} fullWidth sx={{ marginTop: 0.5 }} />}
-      <TabPanel value={value} index={dashboardsTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-        <ProjectDashboards projectName={projectName} id="main-dashboard-list" />
-      </TabPanel>
-      {isEphemeralDashboardEnabled && hasEphemeralDashboards && (
-        <TabPanel value={value} index={ephemeralDashboardsTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-          <ProjectEphemeralDashboards projectName={projectName} id="project-ephemeral-dashboard-list" />
+          <ProjectDashboards projectName={projectName} id="main-dashboard-list" />
         </TabPanel>
-      )}
-      {isProjectVariableEnabled && (
-        <TabPanel value={value} index={variablesTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-          <ProjectVariables projectName={projectName} id="project-variable-list" />
-        </TabPanel>
-      )}
-      {isProjectDatasourceEnabled && (
-        <TabPanel value={value} index={datasourcesTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-          <ProjectDatasources projectName={projectName} id="project-datasource-list" />
-        </TabPanel>
-      )}
-      <TabPanel value={value} index={secretsTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-        <ProjectSecrets projectName={projectName} id="project-secret-list" />
-      </TabPanel>
-      {isAuthEnabled && (
-        <>
-          <TabPanel value={value} index={rolesTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-            <ProjectRoles projectName={projectName} id="project-role-list" />
+        {isEphemeralDashboardEnabled && hasEphemeralDashboards && (
+          <TabPanel
+            value={value}
+            index={ephemeralDashboardsTabIndex}
+            className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
+          >
+            <ProjectEphemeralDashboards projectName={projectName} id="project-ephemeral-dashboard-list" />
           </TabPanel>
-          <TabPanel value={value} index={roleBindingsTabIndex} sx={{ marginTop: isMobileSize ? 1 : 2 }}>
-            <ProjectRoleBindings projectName={projectName} id="project-rolebinding-list" />
+        )}
+        {isProjectVariableEnabled && (
+          <TabPanel
+            value={value}
+            index={variablesTabIndex}
+            className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
+          >
+            <ProjectVariables projectName={projectName} id="project-variable-list" />
           </TabPanel>
-        </>
-      )}
-    </Box>
+        )}
+        {isProjectDatasourceEnabled && (
+          <TabPanel
+            value={value}
+            index={datasourcesTabIndex}
+            className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
+          >
+            <ProjectDatasources projectName={projectName} id="project-datasource-list" />
+          </TabPanel>
+        )}
+        <TabPanel
+          value={value}
+          index={secretsTabIndex}
+          className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
+        >
+          <ProjectSecrets projectName={projectName} id="project-secret-list" />
+        </TabPanel>
+        {isAuthEnabled && (
+          <>
+            <TabPanel
+              value={value}
+              index={rolesTabIndex}
+              className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
+            >
+              <ProjectRoles projectName={projectName} id="project-role-list" />
+            </TabPanel>
+            <TabPanel
+              value={value}
+              index={roleBindingsTabIndex}
+              className={isMobileSize ? 'ps-ProjectTabs-tabPanel--mobile' : ''}
+            >
+              <ProjectRoleBindings projectName={projectName} id="project-rolebinding-list" />
+            </TabPanel>
+          </>
+        )}
+      </Tabs>
+    </div>
   );
 }

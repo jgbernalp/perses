@@ -11,11 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Tooltip } from '@mui/material';
-import { GridColDef } from '@mui/x-data-grid';
-import { GridInitialStateCommunity } from '@mui/x-data-grid/models/gridStateCommunity';
+import { CommonRow, GridColDef, GridInitialState, Tooltip } from '@perses-dev/components';
 import { DispatchWithPromise } from '@perses-dev/core';
 import { intlFormatDistance } from 'date-fns';
+
+type GenericRow = CommonRow & Record<string, unknown>;
 
 export const PROJECT_COL_DEF: GridColDef = {
   field: 'project',
@@ -65,12 +65,15 @@ export const CREATED_AT_COL_DEF: GridColDef = {
   type: 'dateTime',
   flex: 1,
   minWidth: 125,
-  valueGetter: (_, row) => new Date(row.createdAt),
-  renderCell: (params) => (
-    <Tooltip title={params.value.toUTCString()} placement="top">
-      <span>{intlFormatDistance(params.value, new Date())}</span>
-    </Tooltip>
-  ),
+  valueGetter: (_value, row) => new Date((row as { createdAt: string }).createdAt),
+  renderCell: (params) => {
+    const date = params.value as Date;
+    return (
+      <Tooltip content={date.toUTCString()}>
+        <span>{intlFormatDistance(date, new Date())}</span>
+      </Tooltip>
+    );
+  },
 };
 
 export const UPDATED_AT_COL_DEF: GridColDef = {
@@ -79,17 +82,20 @@ export const UPDATED_AT_COL_DEF: GridColDef = {
   type: 'dateTime',
   flex: 1,
   minWidth: 125,
-  valueGetter: (_, row) => new Date(row.updatedAt),
-  renderCell: (params) => (
-    <Tooltip title={params.value.toUTCString()} placement="top">
-      <span>{intlFormatDistance(params.value, new Date())}</span>
-    </Tooltip>
-  ),
+  valueGetter: (_value, row) => new Date((row as { updatedAt: string }).updatedAt),
+  renderCell: (params) => {
+    const date = params.value as Date;
+    return (
+      <Tooltip content={date.toUTCString()}>
+        <span>{intlFormatDistance(date, new Date())}</span>
+      </Tooltip>
+    );
+  },
 };
 
 export interface ListProperties {
   hideToolbar?: boolean;
-  initialState?: GridInitialStateCommunity;
+  initialState?: GridInitialState;
   isLoading?: boolean;
 }
 

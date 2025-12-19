@@ -11,14 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, LinearProgress, Link, TextField, Typography } from '@mui/material';
+import { Button, TextField, Progress, useSnackbar } from '@perses-dev/components';
 import { ReactElement, useState } from 'react';
-import { useSnackbar } from '@perses-dev/components';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useNativeAuthMutation, useRedirectQueryParam } from '../../model/auth-client';
 import { SignUpRoute } from '../../model/route';
 import { useIsSignUpDisable } from '../../context/Config';
 import { SignWrapper } from './SignWrapper';
+import './SignInView.css';
 
 function SignInView(): ReactElement {
   const isSignUpDisable = useIsSignUpDisable();
@@ -48,7 +48,7 @@ function SignInView(): ReactElement {
     return authMutation.isPending || login === '' || password === '';
   };
 
-  const handleKeypress = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+  const handleKeypress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (isSignInDisabled()) {
       return;
     }
@@ -61,25 +61,25 @@ function SignInView(): ReactElement {
 
   return (
     <SignWrapper>
-      <TextField label="Username" required onChange={(e) => setLogin(e.target.value)} onKeyPress={handleKeypress} />
+      <TextField label="Username" required onChange={(value) => setLogin(value)} onKeyPress={handleKeypress} />
       <TextField
         type="password"
         label="Password"
         required
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(value) => setPassword(value)}
         onKeyPress={handleKeypress}
       />
-      <Button variant="contained" disabled={isSignInDisabled()} onClick={() => handleLogin()}>
+      <Button variant="solid" disabled={isSignInDisabled()} onClick={() => handleLogin()}>
         Sign in
       </Button>
-      {authMutation.isPending && <LinearProgress />}
+      {authMutation.isPending && <Progress />}
       {!isSignUpDisable && (
-        <Typography sx={{ textAlign: 'center' }}>
+        <p className="ps-SignInView-registerLink">
           Don&lsquo;t have an account yet?&nbsp;
-          <Link underline="hover" component={RouterLink} to={SignUpRoute}>
+          <RouterLink to={SignUpRoute} className="ps-SignInView-link">
             Register now
-          </Link>
-        </Typography>
+          </RouterLink>
+        </p>
       )}
     </SignWrapper>
   );

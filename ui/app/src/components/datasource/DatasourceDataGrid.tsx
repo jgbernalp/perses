@@ -11,22 +11,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { DataGrid, GridRow, GridColumnHeaders } from '@mui/x-data-grid';
-import { memo, ReactElement, useMemo } from 'react';
-import { GridInitialStateCommunity } from '@mui/x-data-grid/models/gridStateCommunity';
-import { NoDataOverlay } from '@perses-dev/components';
+import { ReactElement } from 'react';
 import {
   CommonRow,
   DATA_GRID_INITIAL_STATE_SORT_BY_DISPLAY_NAME,
-  GridToolbar,
   DataGridPropertiesWithCallback,
-  PAGE_SIZE_OPTIONS,
-  DATA_GRID_STYLES,
-} from '../datagrid';
-
-// https://mui.com/x/react-data-grid/performance/
-const MemoizedRow = memo(GridRow);
-const MemoizedColumnHeaders = memo(GridColumnHeaders);
+  DataGridTable,
+} from '@perses-dev/components';
 
 export interface Row extends CommonRow {
   default: boolean;
@@ -37,46 +28,19 @@ export interface Row extends CommonRow {
   viewedAt?: string;
 }
 
-function NoDatasourceRowOverlay(): ReactElement {
-  return <NoDataOverlay resource="datasources" />;
-}
-
 export function DatasourceDataGrid(props: DataGridPropertiesWithCallback<Row>): ReactElement {
   const { columns, rows, initialState, hideToolbar, isLoading, onRowClick } = props;
 
-  // Merging default initial state with the props initial state (props initial state will overwrite properties)
-  const mergedInitialState = useMemo(() => {
-    return {
-      ...DATA_GRID_INITIAL_STATE_SORT_BY_DISPLAY_NAME,
-      ...(initialState || {}),
-    } as GridInitialStateCommunity;
-  }, [initialState]);
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
-      <DataGrid
-        disableRowSelectionOnClick
-        onRowClick={(params) => {
-          onRowClick(params.row.name, params.row.project);
-        }}
-        rows={rows}
-        columns={columns}
-        getRowId={(row) => row.name}
-        loading={isLoading}
-        slots={
-          hideToolbar
-            ? { noRowsOverlay: NoDatasourceRowOverlay }
-            : {
-                toolbar: GridToolbar,
-                row: MemoizedRow,
-                columnHeaders: MemoizedColumnHeaders,
-                noRowsOverlay: NoDatasourceRowOverlay,
-              }
-        }
-        pageSizeOptions={PAGE_SIZE_OPTIONS}
-        initialState={mergedInitialState}
-        sx={DATA_GRID_STYLES}
-      />
-    </div>
+    <DataGridTable
+      columns={columns}
+      rows={rows}
+      initialState={initialState}
+      hideToolbar={hideToolbar}
+      isLoading={isLoading}
+      onRowClick={onRowClick}
+      emptyResource="datasources"
+      defaultInitialState={DATA_GRID_INITIAL_STATE_SORT_BY_DISPLAY_NAME}
+    />
   );
 }

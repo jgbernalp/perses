@@ -11,14 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Tab, Tabs, styled } from '@mui/material';
+import { Tabs, TabsList, TabTrigger } from '@perses-dev/components';
+import clsx from 'clsx';
+import { ComponentPropsWithoutRef, forwardRef, ForwardRefExoticComponent, RefAttributes } from 'react';
+import './tabs.css';
 
 export const MENU_TABS_HEIGHT = '54px';
 
-export const MenuTabs = styled(Tabs)({
-  minHeight: MENU_TABS_HEIGHT,
+type TabsListProps = ComponentPropsWithoutRef<typeof TabsList>;
+type TabTriggerProps = ComponentPropsWithoutRef<typeof TabTrigger>;
+
+export const MenuTabs: ForwardRefExoticComponent<TabsListProps & RefAttributes<HTMLDivElement>> = forwardRef<
+  HTMLDivElement,
+  TabsListProps
+>(function MenuTabs({ className, ...props }, ref) {
+  return <TabsList ref={ref} className={clsx('ps-MenuTabs', className)} {...props} />;
 });
 
-export const MenuTab = styled(Tab)({
-  minHeight: MENU_TABS_HEIGHT,
+export const MenuTab: ForwardRefExoticComponent<TabTriggerProps & RefAttributes<HTMLButtonElement>> = forwardRef<
+  HTMLButtonElement,
+  TabTriggerProps
+>(function MenuTab({ className, ...props }, ref) {
+  return <TabTrigger ref={ref} className={clsx('ps-MenuTab', className)} {...props} />;
 });

@@ -11,19 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { MouseEvent, ReactElement, useState } from 'react';
-import { Box, IconButton, ListItemIcon, Menu as MUIMenu, MenuItem, Typography } from '@mui/material';
-import Menu from 'mdi-material-ui/Menu';
+import React, { ReactElement } from 'react';
+import { IconButton, Menu, MenuContent, MenuItem, MenuTrigger, useIcon } from '@perses-dev/components';
 import { Link as RouterLink } from 'react-router-dom';
-import ShieldStar from 'mdi-material-ui/ShieldStar';
-import Cog from 'mdi-material-ui/Cog';
-import Compass from 'mdi-material-ui/Compass';
 import { AdminRoute, ConfigRoute, ExploreRoute } from '../../model/route';
 import { GlobalProject, useHasPartialPermission } from '../../context/Authorization';
+import './ToolMenu.css';
 
 export function ToolMenu(): ReactElement {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+  const MenuIcon = useIcon('Menu');
+  const ShieldStarIcon = useIcon('ShieldStar');
+  const CogIcon = useIcon('Settings');
+  const CompassIcon = useIcon('Compass');
   const hasPartialPermission = useHasPartialPermission(['read'], GlobalProject, [
     'GlobalDatasource',
     'GlobalRole',
@@ -33,56 +32,40 @@ export function ToolMenu(): ReactElement {
     'User',
   ]);
 
-  const handleMenu = (event: MouseEvent<HTMLElement>): void => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = (): void => {
-    setAnchorEl(null);
-  };
   return (
-    <Box>
-      <IconButton
-        aria-label="Tooling menu"
-        aria-controls="menu-tool-list-appbar"
-        aria-haspopup="true"
-        color="inherit"
-        onClick={handleMenu}
-      >
-        <Menu />
-      </IconButton>
-      <MUIMenu
-        id="menu-tool-list-appbar"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        keepMounted
-        open={anchorEl !== null}
-        onClose={handleCloseMenu}
-        onClick={handleCloseMenu}
-      >
+    <Menu>
+      <MenuTrigger>
+        <IconButton
+          aria-label="Tooling menu"
+          aria-controls="menu-tool-list-appbar"
+          aria-haspopup="true"
+          className="ps-ToolMenu-trigger"
+        >
+          <MenuIcon />
+        </IconButton>
+      </MenuTrigger>
+      <MenuContent id="menu-tool-list-appbar">
         {hasPartialPermission && (
-          <MenuItem component={RouterLink} to={AdminRoute}>
-            <ListItemIcon>
-              <ShieldStar />
-            </ListItemIcon>
-            <Typography>Admin</Typography>
+          <MenuItem>
+            <RouterLink to={AdminRoute} className="ps-ToolMenu-item">
+              <ShieldStarIcon className="ps-ToolMenu-icon" />
+              <span>Admin</span>
+            </RouterLink>
           </MenuItem>
         )}
-        <MenuItem component={RouterLink} to={ConfigRoute}>
-          <ListItemIcon>
-            <Cog />
-          </ListItemIcon>
-          <Typography>Config</Typography>
+        <MenuItem>
+          <RouterLink to={ConfigRoute} className="ps-ToolMenu-item">
+            <CogIcon className="ps-ToolMenu-icon" />
+            <span>Config</span>
+          </RouterLink>
         </MenuItem>
-        <MenuItem component={RouterLink} to={ExploreRoute}>
-          <ListItemIcon>
-            <Compass />
-          </ListItemIcon>
-          <Typography>Explore</Typography>
+        <MenuItem>
+          <RouterLink to={ExploreRoute} className="ps-ToolMenu-item">
+            <CompassIcon className="ps-ToolMenu-icon" />
+            <span>Explore</span>
+          </RouterLink>
         </MenuItem>
-      </MUIMenu>
-    </Box>
+      </MenuContent>
+    </Menu>
   );
 }

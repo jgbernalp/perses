@@ -13,25 +13,22 @@
 
 import {
   Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  CircularProgress,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  ErrorAlert,
+  ErrorBoundary,
   IconButton,
-  Link,
-  Stack,
+  useSnackbar,
+  Progress,
   TextField,
-  Typography,
-} from '@mui/material';
-import { ChangeEvent, MouseEvent, ReactElement, useCallback, useMemo, useState } from 'react';
+  useIcon,
+} from '@perses-dev/components';
+import './ProjectsAndDashboards.css';
+import { MouseEvent, ReactElement, useMemo, useState } from 'react';
 import { getResourceDisplayName, ProjectResource } from '@perses-dev/core';
-import { ErrorAlert, ErrorBoundary, useSnackbar } from '@perses-dev/components';
-import ChevronDown from 'mdi-material-ui/ChevronDown';
-import Archive from 'mdi-material-ui/Archive';
-import DeleteOutline from 'mdi-material-ui/DeleteOutline';
 import { Link as RouterLink } from 'react-router-dom';
 import { KVSearch } from '@nexucis/kvsearch';
-import FormatListBulletedIcon from 'mdi-material-ui/FormatListBulleted';
 import { DashboardList } from '../../components/DashboardList/DashboardList';
 import { useIsEphemeralDashboardEnabled, useIsReadonly } from '../../context/Config';
 import { useHasPermission } from '../../context/Authorization';
@@ -43,6 +40,9 @@ interface ProjectAccordionProps {
 }
 
 function ProjectAccordion({ row }: ProjectAccordionProps): ReactElement {
+  const ChevronDownIcon = useIcon('ChevronDown');
+  const ArchiveIcon = useIcon('Archive');
+  const DeleteIcon = useIcon('Delete');
   const isReadonly = useIsReadonly();
   const isEphemeralDashboardEnabled = useIsEphemeralDashboardEnabled();
   const { successSnackbar, exceptionSnackbar } = useSnackbar();
@@ -76,45 +76,52 @@ function ProjectAccordion({ row }: ProjectAccordionProps): ReactElement {
 
   return (
     <>
-      <Accordion TransitionProps={{ unmountOnExit: true }} key={row.project.metadata.name}>
-        <AccordionSummary expandIcon={<ChevronDown />}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Archive sx={{ margin: 1 }} />
-              <Link component={RouterLink} to={`/projects/${row.project.metadata.name}`} variant="h3" underline="hover">
-                {getResourceDisplayName(row.project)}
-              </Link>
-            </Stack>
-            {hasPermission && (
-              <IconButton
-                component="div"
-                onClick={(event: MouseEvent) => openDeleteProjectConfirmDialog(event)}
-                disabled={isReadonly}
-              >
-                <DeleteOutline />
-              </IconButton>
-            )}
-          </Stack>
-        </AccordionSummary>
-        <AccordionDetails id={`${row.project.metadata.name}-dashboard-list`} sx={{ padding: 0 }}>
-          <DashboardList
-            dashboardList={row.dashboards}
-            hideToolbar={true}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 25, page: 0 },
-              },
-              columns: {
-                columnVisibilityModel: {
-                  id: false,
-                  project: false,
-                  version: false,
+      <Accordion key={row.project.metadata.name}>
+        <AccordionItem value={row.project.metadata.name}>
+          <AccordionTrigger className="ps-ProjectAccordion-trigger">
+            <div className="ps-ProjectAccordion-summaryRow">
+              <div className="ps-ProjectAccordion-projectInfo">
+                <ArchiveIcon style={{ margin: '8px' }} />
+                <RouterLink
+                  to={`/projects/${row.project.metadata.name}`}
+                  className="ps-ProjectAccordion-projectLink"
+                  onClick={(e: MouseEvent) => e.stopPropagation()}
+                >
+                  {getResourceDisplayName(row.project)}
+                </RouterLink>
+              </div>
+              {hasPermission && (
+                <IconButton
+                  aria-label={`Delete project ${row.project.metadata.name}`}
+                  onClick={(event: MouseEvent) => openDeleteProjectConfirmDialog(event)}
+                  disabled={isReadonly}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
+            </div>
+            <ChevronDownIcon className="ps-ProjectAccordion-expandIcon" />
+          </AccordionTrigger>
+          <AccordionContent id={`${row.project.metadata.name}-dashboard-list`} className="ps-ProjectAccordion-details">
+            <DashboardList
+              dashboardList={row.dashboards}
+              hideToolbar={true}
+              initialState={{
+                pagination: {
+                  paginationModel: { pageSize: 25, page: 0 },
                 },
-              },
-            }}
-            isEphemeralDashboardEnabled={isEphemeralDashboardEnabled}
-          />
-        </AccordionDetails>
+                columns: {
+                  columnVisibilityModel: {
+                    id: false,
+                    project: false,
+                    version: false,
+                  },
+                },
+              }}
+              isEphemeralDashboardEnabled={isEphemeralDashboardEnabled}
+            />
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
       <DeleteResourceDialog
         resource={row.project}
@@ -134,17 +141,15 @@ function RenderDashboardList(props: RenderDashboardListProps): ReactElement {
   const { projectRows } = props;
 
   if (projectRows.length === 0) {
-    return (
-      <Typography sx={{ fontStyle: 'italic', color: 'warning.main' }}>No projects with dashboards found!</Typography>
-    );
+    return <span className="ps-ProjectsAndDashboards-emptyText">No projects with dashboards found!</span>;
   }
 
   return (
-    <Box>
+    <div>
       {projectRows.map((row) => (
         <ProjectAccordion key={row.project.metadata.name} row={row} />
       ))}
-    </Box>
+    </div>
   );
 }
 
@@ -179,46 +184,44 @@ export function SearchableDashboards(props: SearchableDashboardsProps): ReactEle
     }
   }, [kvSearch, projectRows, search]);
 
-  const handleSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
-      setSearch(e.target.value);
-    } else {
-      setSearch('');
-    }
-  }, []);
-
   if (isLoading) {
     return (
-      <Stack width="100%" sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Stack>
+      <div className="ps-ProjectsAndDashboards-loading">
+        <Progress />
+      </div>
     );
   }
 
   return (
-    <Stack gap={2} id={props.id} marginBottom={4}>
+    <div className="ps-ProjectsAndDashboards-searchable" id={props.id}>
       <TextField
         id="search"
         label="Search a Project or a Dashboard"
-        variant="outlined"
-        onChange={handleSearch}
+        onChange={(value) => {
+          if (value) {
+            setSearch(value);
+          } else {
+            setSearch('');
+          }
+        }}
         fullWidth
       />
       <ErrorBoundary FallbackComponent={ErrorAlert}>
         <RenderDashboardList projectRows={filteredProjectRows} />
       </ErrorBoundary>
-    </Stack>
+    </div>
   );
 }
 
 export function ProjectsAndDashboards(): ReactElement {
+  const ListIcon = useIcon('List');
   return (
-    <Stack>
-      <Stack direction="row" alignItems="center" gap={1}>
-        <FormatListBulletedIcon />
+    <div className="ps-ProjectsAndDashboards">
+      <div className="ps-ProjectsAndDashboards-header">
+        <ListIcon />
         <h2>Projects & Dashboards</h2>
-      </Stack>
+      </div>
       <SearchableDashboards id="project-dashboard-list" />
-    </Stack>
+    </div>
   );
 }

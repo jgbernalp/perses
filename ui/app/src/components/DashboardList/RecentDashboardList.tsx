@@ -12,14 +12,11 @@
 // limitations under the License.
 
 import { DashboardResource, getResourceDisplayName, getResourceExtendedDisplayName } from '@perses-dev/core';
-import { Box, Stack, Tooltip } from '@mui/material';
-import { GridColDef, GridRowParams } from '@mui/x-data-grid';
-import DeleteIcon from 'mdi-material-ui/DeleteOutline';
-import PencilIcon from 'mdi-material-ui/Pencil';
+import { GridColDef, GridRowParams, Tooltip, useSnackbar, useIcon } from '@perses-dev/components';
 import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { intlFormatDistance } from 'date-fns';
-import { useSnackbar } from '@perses-dev/components';
 import { DeleteResourceDialog, RenameDashboardDialog } from '../dialogs';
+import './RecentDashboardList.css';
 import { DatedDashboards, useDeleteDashboardMutation } from '../../model/dashboard-client';
 import { CRUDGridActionsCellItem } from '../CRUDButton/CRUDGridActionsCellItem';
 import { DashboardDataGrid, Row } from './DashboardDataGrid';
@@ -32,6 +29,8 @@ export interface RecentDashboardListProperties {
 }
 
 export function RecentDashboardList(props: RecentDashboardListProperties): ReactElement {
+  const DeleteIcon = useIcon('Delete');
+  const EditIcon = useIcon('Edit');
   const { dashboardList, hideProject, hideToolbar, isLoading } = props;
   const { successSnackbar, exceptionSnackbar } = useSnackbar();
   const deleteDashboardMutation = useDeleteDashboardMutation();
@@ -97,7 +96,7 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
     [getDashboard]
   );
 
-  const columns = useMemo<Array<GridColDef<Row>>>(
+  const columns = useMemo<Array<GridColDef>>(
     () => [
       { field: 'project', headerName: 'Project', type: 'string', flex: 2, minWidth: 150 },
       { field: 'displayName', headerName: 'Display Name', type: 'string', flex: 3, minWidth: 150 },
@@ -116,12 +115,15 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
         type: 'dateTime',
         flex: 1,
         minWidth: 125,
-        valueGetter: (_, row): Date => new Date(row.createdAt),
-        renderCell: (params): ReactElement => (
-          <Tooltip title={params.value.toUTCString()} placement="top">
-            <span>{intlFormatDistance(params.value, new Date())}</span>
-          </Tooltip>
-        ),
+        valueGetter: (_value, row): Date => new Date((row as Row).createdAt),
+        renderCell: (params): ReactElement => {
+          const date = params.value as Date;
+          return (
+            <Tooltip content={date.toUTCString()} placement="top">
+              <span>{intlFormatDistance(date, new Date())}</span>
+            </Tooltip>
+          );
+        },
       },
       {
         field: 'updatedAt',
@@ -129,12 +131,15 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
         type: 'dateTime',
         flex: 1,
         minWidth: 125,
-        valueGetter: (_, row): Date => new Date(row.updatedAt),
-        renderCell: (params): ReactElement => (
-          <Tooltip title={params.value.toUTCString()} placement="top">
-            <span>{intlFormatDistance(params.value, new Date())}</span>
-          </Tooltip>
-        ),
+        valueGetter: (_value, row): Date => new Date((row as Row).updatedAt),
+        renderCell: (params): ReactElement => {
+          const date = params.value as Date;
+          return (
+            <Tooltip content={date.toUTCString()} placement="top">
+              <span>{intlFormatDistance(date, new Date())}</span>
+            </Tooltip>
+          );
+        },
       },
       {
         field: 'viewedAt',
@@ -142,12 +147,18 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
         type: 'dateTime',
         flex: 1,
         minWidth: 150,
-        valueGetter: (_, row): Date | undefined => (row.viewedAt ? new Date(row.viewedAt) : undefined),
-        renderCell: (params): ReactElement => (
-          <Tooltip title={params.value.toUTCString()} placement="top">
-            <span>{intlFormatDistance(params.value, new Date())}</span>
-          </Tooltip>
-        ),
+        valueGetter: (_value, row): Date | undefined => {
+          const viewedAt = (row as Row).viewedAt;
+          return viewedAt ? new Date(viewedAt) : undefined;
+        },
+        renderCell: (params): ReactElement => {
+          const date = params.value as Date;
+          return (
+            <Tooltip content={date.toUTCString()} placement="top">
+              <span>{intlFormatDistance(date, new Date())}</span>
+            </Tooltip>
+          );
+        },
       },
       {
         field: 'actions',
@@ -155,33 +166,36 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
         type: 'actions',
         flex: 0.5,
         minWidth: 100,
-        getActions: (params: GridRowParams<Row>): ReactElement[] => [
-          <CRUDGridActionsCellItem
-            key={params.id + '-edit'}
-            icon={<PencilIcon />}
-            label="Rename"
-            action="update"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={onRenameButtonClick(params.row.project, params.row.name)}
-          />,
-          <CRUDGridActionsCellItem
-            key={params.id + '-delete'}
-            icon={<DeleteIcon />}
-            label="Delete"
-            action="delete"
-            scope="Dashboard"
-            project={params.row.project}
-            onClick={onDeleteButtonClick(params.row.project, params.row.name)}
-          />,
-        ],
+        getActions: (params: GridRowParams): ReactElement[] => {
+          const row = params.row as Row;
+          return [
+            <CRUDGridActionsCellItem
+              key={params.id + '-edit'}
+              icon={<EditIcon />}
+              label="Rename"
+              action="update"
+              scope="Dashboard"
+              project={row.project}
+              onClick={onRenameButtonClick(row.project, row.name)}
+            />,
+            <CRUDGridActionsCellItem
+              key={params.id + '-delete'}
+              icon={<DeleteIcon />}
+              label="Delete"
+              action="delete"
+              scope="Dashboard"
+              project={row.project}
+              onClick={onDeleteButtonClick(row.project, row.name)}
+            />,
+          ];
+        },
       },
     ],
     [onRenameButtonClick, onDeleteButtonClick]
   );
 
   return (
-    <Stack width="100%">
+    <div className="ps-RecentDashboardList">
       <DashboardDataGrid
         rows={rows}
         columns={columns}
@@ -204,7 +218,7 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
         isLoading={isLoading}
       />
       {targetedDashboard && (
-        <Box>
+        <div>
           <RenameDashboardDialog
             open={isRenameDashboardDialogStateOpened}
             onClose={() => setRenameDashboardDialogStateOpened(false)}
@@ -216,8 +230,8 @@ export function RecentDashboardList(props: RecentDashboardListProperties): React
             onSubmit={() => handleDashboardDelete(targetedDashboard)}
             onClose={() => setDeleteDashboardDialogStateOpened(false)}
           />
-        </Box>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 }

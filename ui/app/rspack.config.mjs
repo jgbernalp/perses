@@ -31,9 +31,11 @@ const localAliases = {
 
 const sharedAliases = {
   '@perses-dev/explore': resolve(sharedPackagesPath, 'explore/src'),
+  '@perses-dev/components/css': resolve(sharedPackagesPath, 'components/src/primitives/base-ui/styles/index.css'),
   '@perses-dev/components': resolve(sharedPackagesPath, 'components/src'),
   '@perses-dev/dashboards': resolve(sharedPackagesPath, 'dashboards/src'),
   '@perses-dev/plugin-system': resolve(sharedPackagesPath, 'plugin-system/src'),
+  '@perses-dev/tokens/css': resolve(sharedPackagesPath, 'tokens/src/css/index.css'),
 
   // packages only in shared node_modules
   zustand: resolve(sharedNodeModulesPath, 'zustand'),
@@ -52,11 +54,6 @@ const singletonAliases = {
   'react-router': resolve(nodeModulesPath, 'react-router'),
   'use-query-params': resolve(nodeModulesPath, 'use-query-params'),
   '@tanstack/react-query': resolve(nodeModulesPath, '@tanstack/react-query'),
-  '@mui/material': resolve(nodeModulesPath, '@mui/material'),
-  '@mui/system': resolve(nodeModulesPath, '@mui/system'),
-  '@mui/styles': resolve(nodeModulesPath, '@mui/styles'),
-  '@emotion/react': resolve(nodeModulesPath, '@emotion/react'),
-  '@emotion/styled': resolve(nodeModulesPath, '@emotion/styled'),
   'react-hook-form': resolve(nodeModulesPath, 'react-hook-form'),
 };
 

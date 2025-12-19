@@ -11,14 +11,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Card, CardContent, Typography, Divider, Button } from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import { ReactElement, useMemo, useState } from 'react';
+import { Button, Separator, useSnackbar } from '@perses-dev/components';
 import { PluginModuleResource } from '@perses-dev/plugin-system';
-import { useSnackbar } from '@perses-dev/components';
-import { usePlugins } from '../../model/plugin-client';
+import { ReactElement, useMemo, useState } from 'react';
 import { PersesLoader } from '../../components/PersesLoader';
+import { usePlugins } from '../../model/plugin-client';
 import { PluginDetailsDialog } from './PluginDetailsDialog';
+import './PluginsList.css';
 
 export function PluginsList(): ReactElement {
   const [selectedPluginModule, setSelectedPluginModule] = useState<PluginModuleResource | null>(null);
@@ -47,51 +46,49 @@ export function PluginsList(): ReactElement {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Grid container spacing={3}>
+    <div className="ps-PluginsList">
+      <div className="ps-PluginsList-grid">
         {sortedPluginModules.map((pluginModule) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={pluginModule.metadata.name}>
-            <Card elevation={2} sx={{ height: '100%' }}>
-              <CardContent>
-                <Typography variant="h3" gutterBottom>
-                  {pluginModule?.metadata?.name}
-                </Typography>
-                <Typography>Version {pluginModule.metadata.version}</Typography>
-                <Divider sx={{ my: 1.5 }} />
-                <Box>
+          <div className="ps-PluginsList-gridItem" key={pluginModule.metadata.name}>
+            <div className="ps-PluginsList-card">
+              <div className="ps-PluginsList-cardContent">
+                <h3 className="ps-PluginsList-title">{pluginModule?.metadata?.name}</h3>
+                <span>Version {pluginModule.metadata.version}</span>
+                <Separator className="ps-PluginsList-divider" />
+                <div>
                   {
                     // Case 1: No plugins available
                     (!pluginModule?.spec?.plugins || pluginModule?.spec?.plugins.length === 0) && (
-                      <Typography variant="body2">No plugins available 😢</Typography>
+                      <span className="ps-PluginsList-noPlugins">No plugins available 😢</span>
                     )
                   }
                   {
                     // Case 2: Single plugin
                     pluginModule?.spec?.plugins.length === 1 && (
-                      <Box sx={{ mt: 2 }}>
-                        <Typography variant="body1" color="text.secondary">
+                      <div className="ps-PluginsList-singlePlugin">
+                        <span className="ps-PluginsList-kindText">
                           <strong>Kind:</strong> {pluginModule?.spec?.plugins[0]?.kind}
-                        </Typography>
-                      </Box>
+                        </span>
+                      </div>
                     )
                   }
                   {
                     // Case 3: Multiple plugins
                     pluginModule?.spec?.plugins.length > 1 && (
-                      <Box>
-                        <Button color="info" size="small" onClick={() => handleOpenPluginDetails(pluginModule)}>
+                      <div>
+                        <Button color="secondary" onClick={() => handleOpenPluginDetails(pluginModule)}>
                           View {pluginModule.spec.plugins.length} Plugins
                         </Button>
-                      </Box>
+                      </div>
                     )
                   }
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
-      </Grid>
+      </div>
       <PluginDetailsDialog selectedPluginModule={selectedPluginModule} onClose={handleClosePluginDetails} />
-    </Box>
+    </div>
   );
 }

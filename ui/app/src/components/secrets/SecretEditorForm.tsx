@@ -12,33 +12,25 @@
 // limitations under the License.
 
 import { Secret, secretsEditorSchema, SecretsEditorSchemaType } from '@perses-dev/core';
-import React, { ReactElement, SyntheticEvent, useEffect, useMemo, useState } from 'react';
+import React, { HTMLAttributes, ReactElement, SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { getSubmitText, getTitleAction } from '@perses-dev/plugin-system';
 import { Controller, FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  Button,
-  Box,
-  BoxProps,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
+  DiscardChangesConfirmationDialog,
+  FormActions,
   IconButton,
-  InputLabel,
-  MenuItem,
+  Separator,
+  Button,
+  Switch,
+  Tooltip,
+  FormTextField,
   Radio,
   RadioGroup,
-  Select,
-  Stack,
-  Switch,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { DiscardChangesConfirmationDialog, FormActions } from '@perses-dev/components';
-import TrashIcon from 'mdi-material-ui/TrashCan';
-import PlusIcon from 'mdi-material-ui/Plus';
+  FormControlLabel,
+  useIcon,
+} from '@perses-dev/components';
+import './SecretEditorForm.css';
 import { FormEditorProps } from '../form-drawers';
 
 const noAuthIndex = 'noAuth';
@@ -60,6 +52,8 @@ export function SecretEditorForm({
   onClose,
   onDelete,
 }: SecretEditorFormProps): ReactElement {
+  const TrashIcon = useIcon('Delete');
+  const PlusIcon = useIcon('Plus');
   // Reset all attributes that are "hidden" by the API and are returning <secret> as value
   const initialSecretClean: Secret = useMemo(() => {
     const result = { ...initialValue };
@@ -148,15 +142,8 @@ export function SecretEditorForm({
 
   return (
     <FormProvider {...form}>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: (theme) => theme.spacing(1, 2),
-          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Typography variant="h2">{titleAction} Secret</Typography>
+      <div className="ps-SecretEditorForm-header">
+        <h2>{titleAction} Secret</h2>
         <FormActions
           action={action}
           submitText={submitText}
@@ -167,14 +154,14 @@ export function SecretEditorForm({
           onDelete={onDelete}
           onCancel={handleCancel}
         />
-      </Box>
-      <Stack padding={2} gap={2} sx={{ overflowY: 'scroll' }}>
-        <Stack gap={2} direction="row">
+      </div>
+      <div className="ps-SecretEditorForm-content">
+        <div className="ps-Stack ps-Stack-row">
           <Controller
             control={form.control}
             name="metadata.name"
             render={({ field, fieldState }) => (
-              <TextField
+              <FormTextField
                 {...field}
                 required
                 fullWidth
@@ -192,46 +179,39 @@ export function SecretEditorForm({
               />
             )}
           />
-        </Stack>
-        <Divider />
+        </div>
+        <Separator className="ps-SecretEditorForm-divider" />
 
-        <Box sx={{ width: '100%' }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
-          >
-            <FormControl>
-              <RadioGroup row value={tabValue} onChange={handleTabChange} aria-labelledby="Secret Authorization Setup">
-                <FormControlLabel
-                  disabled={isReadonly}
-                  value={noAuthIndex}
-                  control={<Radio />}
-                  label="No Authorization"
-                />
-                <FormControlLabel
-                  disabled={isReadonly}
-                  value={basicAuthIndex}
-                  control={<Radio />}
-                  label="Basic Authorization"
-                />
-                <FormControlLabel
-                  disabled={isReadonly}
-                  value={authorizationIndex}
-                  control={<Radio />}
-                  label="Custom Authorization"
-                />
-                <FormControlLabel disabled={isReadonly} value={oauthIndex} control={<Radio />} label="OAuth" />
-              </RadioGroup>
-            </FormControl>
-          </Stack>
+        <div className="ps-SecretEditorForm-tabs">
+          <div className="ps-SecretEditorForm-tabHeader">
+            <RadioGroup row value={tabValue} onChange={handleTabChange} aria-labelledby="Secret Authorization Setup">
+              <FormControlLabel
+                disabled={isReadonly}
+                value={noAuthIndex}
+                control={<Radio />}
+                label="No Authorization"
+              />
+              <FormControlLabel
+                disabled={isReadonly}
+                value={basicAuthIndex}
+                control={<Radio />}
+                label="Basic Authorization"
+              />
+              <FormControlLabel
+                disabled={isReadonly}
+                value={authorizationIndex}
+                control={<Radio />}
+                label="Custom Authorization"
+              />
+              <FormControlLabel disabled={isReadonly} value={oauthIndex} control={<Radio />} label="OAuth" />
+            </RadioGroup>
+          </div>
           <TabPanel value={tabValue} index={basicAuthIndex}>
-            <Stack gap={2}>
+            <div className="ps-Stack">
               <Controller
                 name="spec.basicAuth.username"
                 render={({ field, fieldState }) => (
-                  <TextField
+                  <FormTextField
                     {...field}
                     required
                     fullWidth
@@ -248,12 +228,12 @@ export function SecretEditorForm({
                   />
                 )}
               />
-              <Stack direction="row">
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.basicAuth.password"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Password"
@@ -270,12 +250,14 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-                <Divider orientation="vertical">OR</Divider>
+                <div className="ps-SecretEditorForm-orDivider">
+                  <span>OR</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="spec.basicAuth.passwordFile"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Password File"
@@ -291,16 +273,16 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
-            </Stack>
+              </div>
+            </div>
           </TabPanel>
           <TabPanel value={tabValue} index={authorizationIndex}>
-            <Stack gap={2}>
+            <div className="ps-Stack">
               <Controller
                 control={form.control}
                 name="spec.authorization.type"
                 render={({ field, fieldState }) => (
-                  <TextField
+                  <FormTextField
                     {...field}
                     fullWidth
                     label="Type"
@@ -316,12 +298,12 @@ export function SecretEditorForm({
                   />
                 )}
               />
-              <Stack direction="row">
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.authorization.credentials"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Credentials"
@@ -338,12 +320,14 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-                <Divider orientation="vertical">OR</Divider>
+                <div className="ps-SecretEditorForm-orDivider">
+                  <span>OR</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="spec.authorization.credentialsFile"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Credentials File"
@@ -359,16 +343,16 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
-            </Stack>
+              </div>
+            </div>
           </TabPanel>
           <TabPanel value={tabValue} index={oauthIndex}>
-            <Stack gap={2}>
+            <div className="ps-Stack">
               <Controller
                 control={form.control}
                 name="spec.oauth.clientID"
                 render={({ field, fieldState }) => (
-                  <TextField
+                  <FormTextField
                     {...field}
                     required
                     fullWidth
@@ -386,12 +370,12 @@ export function SecretEditorForm({
                   />
                 )}
               />
-              <Stack direction="row">
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.oauth.clientSecret"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Client Secret"
@@ -408,12 +392,14 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-                <Divider orientation="vertical">OR</Divider>
+                <div className="ps-SecretEditorForm-orDivider">
+                  <span>OR</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="spec.oauth.clientSecretFile"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Client Secret File"
@@ -429,13 +415,13 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
-              <Stack direction="row">
+              </div>
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.oauth.tokenURL"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       required
                       fullWidth
@@ -452,9 +438,9 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
-              <Stack gap={2}>
-                <Typography variant="subtitle1">Scopes</Typography>
+              </div>
+              <div className="ps-Stack">
+                <span className="ps-SecretEditorForm-subtitle">Scopes</span>
                 <Controller
                   control={form.control}
                   name="spec.oauth.scopes"
@@ -477,10 +463,10 @@ export function SecretEditorForm({
                     };
 
                     return (
-                      <Stack gap={2}>
+                      <div className="ps-Stack">
                         {scopes.map((scope, index) => (
-                          <Stack key={index} direction="row" gap={1} alignItems="center">
-                            <TextField
+                          <div key={index} className="ps-Stack ps-Stack-row ps-Stack-sm ps-Stack-alignCenter">
+                            <FormTextField
                               fullWidth
                               value={scope}
                               placeholder="Enter scope"
@@ -491,29 +477,34 @@ export function SecretEditorForm({
                               onChange={(e) => updateScope(index, e.target.value)}
                             />
                             {!isReadonly && (
-                              <IconButton onClick={() => removeScope(index)} size="small" sx={{ ml: 1 }}>
+                              <IconButton
+                                aria-label="Remove scope"
+                                onClick={() => removeScope(index)}
+                                size="sm"
+                                className="ps-SecretEditorForm-deleteBtn"
+                              >
                                 <TrashIcon />
                               </IconButton>
                             )}
-                          </Stack>
+                          </div>
                         ))}
                         {!isReadonly && (
                           <Button
                             startIcon={<PlusIcon />}
                             onClick={addScope}
                             variant="outlined"
-                            sx={{ width: 'fit-content' }}
+                            style={{ width: 'fit-content' }}
                           >
                             Add Scope
                           </Button>
                         )}
-                      </Stack>
+                      </div>
                     );
                   }}
                 />
-              </Stack>
-              <Stack gap={2}>
-                <Typography variant="subtitle1">Endpoint Params</Typography>
+              </div>
+              <div className="ps-Stack">
+                <span className="ps-SecretEditorForm-subtitle">Endpoint Params</span>
                 <Controller
                   control={form.control}
                   name="spec.oauth.endpointParams"
@@ -580,11 +571,11 @@ export function SecretEditorForm({
                     };
 
                     return (
-                      <Stack gap={2}>
+                      <div className="ps-Stack">
                         {Object.entries(params).map(([key, values], paramIndex) => (
-                          <Stack key={paramIndex} gap={1}>
-                            <Stack direction="row" gap={1} alignItems="center">
-                              <TextField
+                          <div key={paramIndex} className="ps-Stack ps-Stack-sm">
+                            <div className="ps-Stack ps-Stack-row ps-Stack-sm ps-Stack-alignCenter">
+                              <FormTextField
                                 value={key}
                                 placeholder="Parameter name"
                                 InputLabelProps={{ shrink: action === 'read' ? true : undefined }}
@@ -594,15 +585,18 @@ export function SecretEditorForm({
                                 onChange={(e) => updateParamKey(key, e.target.value)}
                               />
                               {!isReadonly && (
-                                <IconButton onClick={() => removeParam(key)} size="small">
+                                <IconButton aria-label="Remove parameter" onClick={() => removeParam(key)} size="sm">
                                   <TrashIcon />
                                 </IconButton>
                               )}
-                            </Stack>
-                            <Stack gap={1} sx={{ pl: 3 }}>
+                            </div>
+                            <div className="ps-Stack ps-Stack-sm ps-SecretEditorForm-nested">
                               {values.map((value, valueIndex) => (
-                                <Stack key={valueIndex} direction="row" gap={1} alignItems="center">
-                                  <TextField
+                                <div
+                                  key={valueIndex}
+                                  className="ps-Stack ps-Stack-row ps-Stack-sm ps-Stack-alignCenter"
+                                >
+                                  <FormTextField
                                     fullWidth
                                     value={value}
                                     placeholder="Parameter value"
@@ -613,47 +607,51 @@ export function SecretEditorForm({
                                     onChange={(e) => updateValue(key, valueIndex, e.target.value)}
                                   />
                                   {!isReadonly && values.length > 1 && (
-                                    <IconButton onClick={() => removeValueFromParam(key, valueIndex)} size="small">
+                                    <IconButton
+                                      aria-label="Remove value"
+                                      onClick={() => removeValueFromParam(key, valueIndex)}
+                                      size="sm"
+                                    >
                                       <TrashIcon />
                                     </IconButton>
                                   )}
-                                </Stack>
+                                </div>
                               ))}
                               {!isReadonly && (
                                 <Button
                                   startIcon={<PlusIcon />}
                                   onClick={() => addValueToParam(key)}
                                   variant="outlined"
-                                  sx={{ width: 'fit-content' }}
+                                  style={{ width: 'fit-content' }}
                                 >
                                   Add Value
                                 </Button>
                               )}
-                            </Stack>
-                          </Stack>
+                            </div>
+                          </div>
                         ))}
                         {!isReadonly && (
                           <Button
                             startIcon={<PlusIcon />}
                             onClick={addParam}
                             variant="outlined"
-                            sx={{ width: 'fit-content' }}
+                            style={{ width: 'fit-content' }}
                           >
                             Add Parameter
                           </Button>
                         )}
-                      </Stack>
+                      </div>
                     );
                   }}
                 />
-              </Stack>
-              <Stack direction="row">
+              </div>
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.oauth.authStyle"
                   render={({ field, fieldState }) => (
                     <Tooltip
-                      title={
+                      content={
                         field.value === 0
                           ? 'Automatically detect the best auth style to use based on the provider'
                           : field.value === 1
@@ -664,39 +662,39 @@ export function SecretEditorForm({
                       }
                       placement="right"
                     >
-                      <FormControl fullWidth error={!!fieldState.error}>
-                        <InputLabel id="auth-style-label" shrink={action === 'read' ? true : undefined}>
-                          Auth Style
-                        </InputLabel>
-                        <Select
-                          {...field}
-                          labelId="auth-style-label"
-                          label="Auth Style"
-                          readOnly={action === 'read'}
-                          value={field.value ?? 0}
-                          onChange={(event) => {
-                            field.onChange(event.target.value === '' ? undefined : +event.target.value);
-                          }}
-                        >
-                          <MenuItem value={0}>Auto Detect</MenuItem>
-                          <MenuItem value={1}>In Params</MenuItem>
-                          <MenuItem value={2}>In Header</MenuItem>
-                        </Select>
-                        {fieldState.error && <FormHelperText>{fieldState.error.message}</FormHelperText>}
-                      </FormControl>
+                      <FormTextField
+                        select
+                        fullWidth
+                        label="Auth Style"
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                        InputLabelProps={{ shrink: action === 'read' ? true : undefined }}
+                        InputProps={{
+                          readOnly: action === 'read',
+                        }}
+                        value={field.value ?? 0}
+                        onChange={(event) => {
+                          const val = (event.target as HTMLSelectElement).value;
+                          field.onChange(val === '' ? undefined : +val);
+                        }}
+                      >
+                        <option value={0}>Auto Detect</option>
+                        <option value={1}>In Params</option>
+                        <option value={2}>In Header</option>
+                      </FormTextField>
                     </Tooltip>
                   )}
                 />
-              </Stack>
-            </Stack>
+              </div>
+            </div>
           </TabPanel>
-        </Box>
-        <Stack gap={1}>
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant="h1">TLS Config</Typography>
+        </div>
+        <div className="ps-Stack ps-Stack-sm">
+          <div className="ps-Stack ps-Stack-row ps-Stack-spaceBetween">
+            <h1>TLS Config</h1>
             {isTLSConfigEnabled && (
               <IconButton
-                sx={{ width: 'fit-content', height: 'fit-content' }}
+                aria-label="Remove TLS config"
                 onClick={() => {
                   setTLSConfigEnabled(false);
                   form.setValue('spec.tlsConfig', undefined);
@@ -706,15 +704,15 @@ export function SecretEditorForm({
                 <TrashIcon />
               </IconButton>
             )}
-          </Stack>
+          </div>
           {isTLSConfigEnabled ? (
-            <Stack gap={2}>
-              <Stack direction="row">
+            <div className="ps-Stack">
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.tlsConfig.ca"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       multiline
@@ -733,12 +731,14 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-                <Divider orientation="vertical">OR</Divider>
+                <div className="ps-SecretEditorForm-orDivider">
+                  <span>OR</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="spec.tlsConfig.caFile"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="CA File"
@@ -754,13 +754,13 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
-              <Stack direction="row">
+              </div>
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.tlsConfig.cert"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       multiline
@@ -779,12 +779,14 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-                <Divider orientation="vertical">OR</Divider>
+                <div className="ps-SecretEditorForm-orDivider">
+                  <span>OR</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="spec.tlsConfig.certFile"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Cert File"
@@ -800,13 +802,13 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
-              <Stack direction="row">
+              </div>
+              <div className="ps-Stack ps-Stack-row">
                 <Controller
                   control={form.control}
                   name="spec.tlsConfig.key"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       multiline
@@ -825,12 +827,14 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-                <Divider orientation="vertical">OR</Divider>
+                <div className="ps-SecretEditorForm-orDivider">
+                  <span>OR</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="spec.tlsConfig.keyFile"
                   render={({ field, fieldState }) => (
-                    <TextField
+                    <FormTextField
                       {...field}
                       fullWidth
                       label="Key File"
@@ -846,12 +850,12 @@ export function SecretEditorForm({
                     />
                   )}
                 />
-              </Stack>
+              </div>
               <Controller
                 control={form.control}
                 name="spec.tlsConfig.serverName"
                 render={({ field, fieldState }) => (
-                  <TextField
+                  <FormTextField
                     {...field}
                     fullWidth
                     label="Server Name"
@@ -871,26 +875,22 @@ export function SecretEditorForm({
                 control={form.control}
                 name="spec.tlsConfig.insecureSkipVerify"
                 render={({ field }) => (
-                  <FormControlLabel
+                  <Switch
                     label="Insecure Skip Verify"
-                    control={
-                      <Switch
-                        {...field}
-                        checked={!!field.value}
-                        readOnly={action === 'read'}
-                        onChange={(event) => {
-                          if (action === 'read') return; // ReadOnly prop is not blocking user interaction...
-                          field.onChange(event);
-                        }}
-                      />
-                    }
+                    checked={!!field.value}
+                    disabled={action === 'read'}
+                    onChange={(checked) => {
+                      if (action === 'read') return;
+                      field.onChange(checked);
+                    }}
                   />
                 )}
               />
-            </Stack>
+            </div>
           ) : (
             <IconButton
-              sx={{ width: 'fit-content', height: 'fit-content' }}
+              aria-label="Add TLS config"
+              className="ps-SecretEditorForm-addBtn"
               onClick={() => {
                 form.setValue('spec.tlsConfig', {
                   ca: '',
@@ -908,8 +908,8 @@ export function SecretEditorForm({
               <PlusIcon />
             </IconButton>
           )}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
 
       <DiscardChangesConfirmationDialog
         description="Are you sure you want to discard these changes? Changes cannot be recovered."
@@ -926,14 +926,14 @@ export function SecretEditorForm({
   );
 }
 
-interface TabPanelProps extends BoxProps {
+interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
   index: string;
   value: string;
 }
 
 function TabPanel({ children, value, index, ...props }: TabPanelProps): ReactElement {
   return (
-    <Box
+    <div
       role="tabpanel"
       hidden={value !== index}
       id={`secret-form-tabpanel-${index}`}
@@ -941,6 +941,6 @@ function TabPanel({ children, value, index, ...props }: TabPanelProps): ReactEle
       {...props}
     >
       {value === index && children}
-    </Box>
+    </div>
   );
 }

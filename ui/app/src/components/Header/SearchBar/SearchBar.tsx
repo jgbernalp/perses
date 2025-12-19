@@ -11,16 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Alert, Box, Button, Chip, InputAdornment, Modal, Paper, TextField, Typography } from '@mui/material';
-import Magnify from 'mdi-material-ui/Magnify';
-import EmoticonSadOutline from 'mdi-material-ui/EmoticonSadOutline';
-import ViewDashboardIcon from 'mdi-material-ui/ViewDashboard';
-import Archive from 'mdi-material-ui/Archive';
-import DatabaseIcon from 'mdi-material-ui/Database';
+import { Button, Dialog, IconButton, Input, useIcon } from '@perses-dev/components';
 import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { isProjectMetadata, Resource } from '@perses-dev/core';
-import IconButton from '@mui/material/IconButton';
-import Close from 'mdi-material-ui/Close';
 import { useIsMobileSize } from '../../../utils/browser-size';
 import { isAppleDevice } from '../../../utils/os';
 import { useDashboardList, useImportantDashboardList } from '../../../model/dashboard-client';
@@ -29,6 +22,7 @@ import { AdminRoute, ProjectRoute } from '../../../model/route';
 import { useDatasourceList } from '../../../model/datasource-client';
 import { useGlobalDatasourceList } from '../../../model/global-datasource-client';
 import { SearchList } from './SearchList';
+import './SearchBar.css';
 
 function shortcutCTRL(): string {
   return isAppleDevice() ? '⌘' : 'ctrl';
@@ -43,6 +37,7 @@ interface ResourceListProps {
 }
 
 function SearchProjectList(props: ResourceListProps): ReactElement {
+  const ArchiveIcon = useIcon('Archive');
   const projectsQueryResult = useProjectList({ refetchOnMount: false });
   const { query, onClick, isResources } = props;
   return (
@@ -50,13 +45,14 @@ function SearchProjectList(props: ResourceListProps): ReactElement {
       list={projectsQueryResult.data ?? []}
       query={query}
       onClick={onClick}
-      icon={Archive}
+      icon={ArchiveIcon}
       isResource={(isAvailable) => isResources?.('projects', isAvailable)}
     />
   );
 }
 
 function SearchGlobalDatasource(props: ResourceListProps): ReactElement {
+  const DatabaseIcon = useIcon('Database');
   const globalDatasourceQueryResult = useGlobalDatasourceList({ refetchOnMount: false });
   const { query, onClick, isResources } = props;
   return (
@@ -72,6 +68,7 @@ function SearchGlobalDatasource(props: ResourceListProps): ReactElement {
 }
 
 function SearchDashboardList(props: ResourceListProps): ReactElement | null {
+  const DashboardIcon = useIcon('Dashboard');
   const {
     data: dashboardList,
     isLoading: dashboardListLoading,
@@ -105,13 +102,13 @@ function SearchDashboardList(props: ResourceListProps): ReactElement | null {
 
   if (dashboardListError || importantDashboardsError)
     return (
-      <Box sx={{ margin: 1 }}>
-        <Alert severity="error">
+      <div className="ps-SearchBar-error">
+        <div className="ps-SearchBar-alert" data-severity="error">
           <p>Failed to load dashboards! Error:</p>
           {importantDashboardsError?.message && <p>{importantDashboardsError.message}</p>}
           {dashboardListError?.message && <p>{dashboardListError.message}</p>}
-        </Alert>
-      </Box>
+        </div>
+      </div>
     );
 
   return dashboardListLoading || importantDashboardsLoading ? null : (
@@ -119,7 +116,7 @@ function SearchDashboardList(props: ResourceListProps): ReactElement | null {
       list={list}
       query={query}
       onClick={onClick}
-      icon={ViewDashboardIcon}
+      icon={DashboardIcon}
       chip={true}
       isResource={(isAvailable) => isResources?.('dashboards', isAvailable)}
     />
@@ -127,6 +124,7 @@ function SearchDashboardList(props: ResourceListProps): ReactElement | null {
 }
 
 function SearchDatasourceList(props: ResourceListProps): ReactElement | null {
+  const DatabaseIcon = useIcon('Database');
   const datasourceQueryResult = useDatasourceList({ refetchOnMount: false });
   const { isResources, onClick, query } = props;
   return (
@@ -169,6 +167,9 @@ function useHandleShortCut(handleOpen: () => void): void {
 }
 
 export function SearchBar(): ReactElement {
+  const SearchIcon = useIcon('Search');
+  const FrownIcon = useIcon('Frown');
+  const CloseIcon = useIcon('Close');
   const isMobileSize = useIsMobileSize();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -187,76 +188,47 @@ export function SearchBar(): ReactElement {
   const handleClose = (): void => setOpen(false);
   useHandleShortCut(handleOpen);
   return (
-    <Paper sx={{ width: '100%', flexShrink: 1 }}>
-      <Button size="small" fullWidth sx={{ display: 'flex', justifyContent: 'space-between' }} onClick={handleOpen}>
-        <Box sx={{ display: 'flex' }} flexDirection="row" alignItems="center">
-          <Magnify sx={{ marginRight: 0.5 }} fontSize="medium" />
-          <Typography>Search...</Typography>
-        </Box>
-        {!isMobileSize && <Chip label={`${shortcutCTRL()}+k`} size="small" />}
+    <div className="ps-SearchBar">
+      <Button size="sm" className="ps-SearchBar-trigger" onClick={handleOpen}>
+        <span className="ps-SearchBar-triggerContent">
+          <SearchIcon className="ps-SearchBar-searchIcon" />
+          <span>Search...</span>
+        </span>
+        {!isMobileSize && <span className="ps-SearchBar-shortcut">{`${shortcutCTRL()}+k`}</span>}
       </Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        style={{ display: 'flex', justifyContent: 'center' }}
-        disableAutoFocus={true}
-        sx={{ display: 'flex', alignItems: 'flex-start', overflowY: 'auto' }}
-      >
-        <Paper
-          elevation={0}
-          sx={{
-            maxHeight: '70vh',
-            width: isMobileSize ? '95%' : '55%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            overflowY: 'auto',
-            height: 'auto',
-          }}
-          variant="outlined"
-        >
-          <TextField
-            size="medium"
-            /* eslint-disable-next-line jsx-a11y/no-autofocus */
-            autoFocus={open}
-            variant="outlined"
-            placeholder="What are you looking for?"
-            fullWidth
-            sx={{ justifyContent: 'flex-start', marginBottom: 1 }}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Magnify sx={{ marginRight: 0.5 }} fontSize="medium" />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  {query && (
-                    <IconButton size="small" onClick={() => setQuery('')}>
-                      <Close fontSize="small" />
-                    </IconButton>
-                  )}
-                  <Chip label="esc" size="small" onClick={handleClose} />
-                </InputAdornment>
-              ),
-            }}
-          />
+      <Dialog open={open} onClose={handleClose} aria-labelledby="search-modal">
+        <div className="ps-SearchBar-modal" data-mobile={isMobileSize || undefined}>
+          <div className="ps-SearchBar-inputWrapper">
+            <SearchIcon className="ps-SearchBar-inputIcon" />
+            <Input
+              /* eslint-disable-next-line jsx-a11y/no-autofocus */
+              autoFocus={open}
+              placeholder="What are you looking for?"
+              className="ps-SearchBar-input"
+              value={query}
+              onChange={(value) => setQuery(value)}
+            />
+            {query && (
+              <IconButton size="sm" variant="ghost" onClick={() => setQuery('')} aria-label="Clear search input">
+                <CloseIcon />
+              </IconButton>
+            )}
+            <button type="button" className="ps-SearchBar-escKey" onClick={handleClose}>
+              esc
+            </button>
+          </div>
           {!!query.length && !Object.values(hasResource).some((v) => v) && (
-            <Box sx={{ margin: 1, display: 'flex', justifyContent: 'center', gap: 1 }}>
-              <EmoticonSadOutline fontSize="medium" />
-              <Typography>No records found for {query}</Typography>
-            </Box>
+            <div className="ps-SearchBar-noResults">
+              <FrownIcon />
+              <span>No records found for {query}</span>
+            </div>
           )}
           <SearchDashboardList query={query} onClick={handleClose} isResources={handleIsResourceAvailable} />
           <SearchProjectList query={query} onClick={handleClose} isResources={handleIsResourceAvailable} />
           <SearchGlobalDatasource query={query} onClick={handleClose} isResources={handleIsResourceAvailable} />
           <SearchDatasourceList query={query} onClick={handleClose} isResources={handleIsResourceAvailable} />
-        </Paper>
-      </Modal>
-    </Paper>
+        </div>
+      </Dialog>
+    </div>
   );
 }

@@ -11,14 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CircularProgress, Grid, Stack, Typography } from '@mui/material';
+import { Progress, useIcon } from '@perses-dev/components';
 import { DashboardResource } from '@perses-dev/core';
-import StarFourPointsOutline from 'mdi-material-ui/StarFourPointsOutline';
 import { ReactElement } from 'react';
 import { useImportantDashboardList } from '../../model/dashboard-client';
 import { DashboardCard } from '../../components/DashboardCard/DashboardCard';
 import { useIsMobileSize } from '../../utils/browser-size';
 import { useConfig } from '../../model/config-client';
+import './ImportantDashboards.css';
 
 interface DashboardMosaicProps {
   dashboards: DashboardResource[];
@@ -29,24 +29,31 @@ function DashboardMosaic({ dashboards }: DashboardMosaicProps): ReactElement {
 
   if (dashboards.length === 0) {
     return (
-      <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} width="100%" height="50">
-        <Typography variant="subtitle1">Empty</Typography>
-      </Stack>
+      <div className="ps-ImportantDashboards-empty">
+        <span className="ps-ImportantDashboards-emptyText">Empty</span>
+      </div>
     );
   }
 
   return (
-    <Grid container spacing={isMobileSize ? 1 : 2} data-testid="important-dashboards-mosaic">
+    <div
+      className={`ps-ImportantDashboards-grid ${isMobileSize ? 'ps-ImportantDashboards-grid--mobile' : ''}`}
+      data-testid="important-dashboards-mosaic"
+    >
       {dashboards.map((dashboard) => (
-        <Grid key={`${dashboard.metadata.project}-${dashboard.metadata.name}`} item xs={6} lg={4}>
+        <div
+          key={`${dashboard.metadata.project}-${dashboard.metadata.name}`}
+          className="ps-ImportantDashboards-gridItem"
+        >
           <DashboardCard dashboard={dashboard} hideIcon={isMobileSize}></DashboardCard>
-        </Grid>
+        </div>
       ))}
-    </Grid>
+    </div>
   );
 }
 
 export function ImportantDashboards(): ReactElement {
+  const SparklesIcon = useIcon('Sparkles');
   const { data: config } = useConfig();
   const { data: dashboards, isLoading } = useImportantDashboardList();
 
@@ -56,18 +63,18 @@ export function ImportantDashboards(): ReactElement {
   }
 
   return (
-    <Stack>
-      <Stack direction="row" alignItems="center" gap={1}>
-        <StarFourPointsOutline />
+    <div className="ps-ImportantDashboards">
+      <div className="ps-ImportantDashboards-header">
+        <SparklesIcon />
         <h2>Important Dashboards</h2>
-      </Stack>
+      </div>
       {isLoading ? (
-        <Stack width="100%" sx={{ alignItems: 'center', justifyContent: 'center' }}>
-          <CircularProgress />
-        </Stack>
+        <div className="ps-ImportantDashboards-loading">
+          <Progress />
+        </div>
       ) : (
         <DashboardMosaic dashboards={dashboards} />
       )}
-    </Stack>
+    </div>
   );
 }

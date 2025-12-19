@@ -11,13 +11,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { BarChart, BarChartData, LoadingOverlay, useChartsTheme } from '@perses-dev/components';
-import { Box } from '@mui/material';
-import { ReactElement, useMemo } from 'react';
-import { CalculationType, CalculationsMap } from '@perses-dev/core';
-import { useDataQueries, PanelProps } from '@perses-dev/plugin-system';
-import { BarChartOptions } from './bar-chart-model';
-import { calculatePercentages, sortSeriesData } from './utils';
+import {
+  BarChart,
+  BarChartData,
+  LoadingOverlay,
+  useChartsTheme,
+} from "@perses-dev/components";
+import { ReactElement, useMemo } from "react";
+import { CalculationType, CalculationsMap } from "@perses-dev/core";
+import { useDataQueries, PanelProps } from "@perses-dev/plugin-system";
+import { BarChartOptions } from "./bar-chart-model";
+import { calculatePercentages, sortSeriesData } from "./utils";
 
 export type BarChartPanelProps = PanelProps<BarChartOptions>;
 
@@ -30,26 +34,28 @@ export function BarChartPanel(props: BarChartPanelProps): ReactElement | null {
   const chartsTheme = useChartsTheme();
   const PADDING = chartsTheme.container.padding.default;
 
-  const { queryResults, isLoading, isFetching } = useDataQueries('TimeSeriesQuery'); // gets data queries from a context provider, see DataQueriesProvider
+  const { queryResults, isLoading, isFetching } =
+    useDataQueries("TimeSeriesQuery"); // gets data queries from a context provider, see DataQueriesProvider
 
   const barChartData: BarChartData[] = useMemo(() => {
     const calculate = CalculationsMap[calculation as CalculationType];
     const barChartData: BarChartData[] = [];
     for (const result of queryResults) {
       // Skip queries that are still loading or don't have data
-      if (result.isLoading || result.isFetching || result.data === undefined) continue;
+      if (result.isLoading || result.isFetching || result.data === undefined)
+        continue;
 
       for (const seriesData of result.data.series) {
         const series = {
           value: calculate(seriesData.values) ?? null,
-          label: seriesData.formattedName ?? '',
+          label: seriesData.formattedName ?? "",
         };
         barChartData.push(series);
       }
     }
 
     const sortedBarChartData = sortSeriesData(barChartData, sort);
-    if (mode === 'percentage') {
+    if (mode === "percentage") {
       return calculatePercentages(sortedBarChartData);
     } else {
       return sortedBarChartData;
@@ -65,7 +71,7 @@ export function BarChartPanel(props: BarChartPanelProps): ReactElement | null {
   }
 
   return (
-    <Box sx={{ padding: `${PADDING}px` }}>
+    <div style={{ padding: `${PADDING}px` }}>
       <BarChart
         width={contentDimensions.width - PADDING * 2}
         height={contentDimensions.height - PADDING * 2}
@@ -73,6 +79,6 @@ export function BarChartPanel(props: BarChartPanelProps): ReactElement | null {
         format={format}
         mode={mode}
       />
-    </Box>
+    </div>
   );
 }
